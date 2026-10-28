@@ -292,6 +292,24 @@ export function playSfx(type) {
       break;
     }
 
+    case 'text': {
+      // Classic RPG / Undertale-style dialogue blip
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      const baseFreq = 480 + (Math.random() * 40 - 20);
+      osc.frequency.setValueAtTime(baseFreq, now);
+
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+
+      osc.connect(gain);
+      gain.connect(masterGain);
+      osc.start(now);
+      osc.stop(now + 0.035);
+      break;
+    }
+
     case 'click':
     default: {
       // Short blip

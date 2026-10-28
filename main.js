@@ -78,8 +78,13 @@ function runTypewriter() {
 
   function typeChar() {
     if (charIndex < characters.length) {
+      const char = characters[charIndex];
       charIndex++;
       container.textContent = characters.slice(0, charIndex).join('');
+      // Play retro RPG blip for visible letters (skip whitespace and newlines)
+      if (char !== ' ' && char !== '\n') {
+        playSfx('text');
+      }
       const timeout = setTimeout(typeChar, speed);
       typewriterTimeouts.push(timeout);
     }
@@ -144,12 +149,21 @@ export function triggerLevelUp() {
     banner.classList.add('show');
   }
 
+  // Vertical rolling level animation: waits for EXP bar to fill, then rolls up!
+  const roller = document.getElementById('level-roller');
+  if (roller) {
+    setTimeout(() => {
+      roller.classList.add('rolled');
+      playSfx('coin');
+    }, 1200);
+  }
+
   const hudLevel = document.getElementById('hud-level');
   if (hudLevel) {
     hudLevel.classList.add('level-up-flash');
     setTimeout(() => {
       hudLevel.textContent = `LEVEL: ${BIRTHDAY_CONFIG.level}`;
-    }, 700);
+    }, 1200);
   }
 }
 
@@ -190,10 +204,15 @@ export function resetGame() {
     container.innerHTML = '';
   }
 
-  // Reset Level Up banner & HUD
+  // Reset Level Up banner, vertical roller & HUD
   const banner = document.getElementById('levelup-banner');
   if (banner) {
     banner.classList.remove('show');
+  }
+
+  const roller = document.getElementById('level-roller');
+  if (roller) {
+    roller.classList.remove('rolled');
   }
 
   const hudLevel = document.getElementById('hud-level');
