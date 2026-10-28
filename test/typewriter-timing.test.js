@@ -22,3 +22,20 @@ test('main.js implements paragraph-by-paragraph typewriter with pause delay and 
   assert.ok(main.includes("playSfx('pause')"));
   assert.ok(main.includes('BIRTHDAY_CONFIG.wishes'));
 });
+
+test('main.js waits for levelup banner animation before starting letter typewriter', () => {
+  const main = fs.readFileSync('main.js', 'utf8');
+  // Ensure runTypewriter is not invoked immediately alongside triggerLevelUp
+  assert.ok(
+    !main.includes('triggerLevelUp();\n    runTypewriter();') &&
+    !main.includes('triggerLevelUp();\r\n    runTypewriter();'),
+    'runTypewriter should not run simultaneously with triggerLevelUp'
+  );
+  // triggerLevelUp should accept a callback or trigger runTypewriter after animation finishes
+  assert.ok(
+    main.includes('triggerLevelUp(() =>') ||
+    main.includes('triggerLevelUp(runTypewriter)') ||
+    (main.includes('triggerLevelUp') && main.includes('onComplete')),
+    'triggerLevelUp must trigger onComplete callback after banner animation'
+  );
+});

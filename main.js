@@ -27,6 +27,7 @@ let currentScreen = 'screen-start';
 let isBlowing = false;
 let typewriterTimeouts = [];
 let cakePromptTimeouts = [];
+let levelUpTimeouts = [];
 
 /**
  * Get current active screen ID
@@ -67,6 +68,14 @@ export function clearTypewriter() {
 export function clearCakePrompt() {
   cakePromptTimeouts.forEach(t => clearTimeout(t));
   cakePromptTimeouts = [];
+}
+
+/**
+ * Clear level up sequence timers
+ */
+export function clearLevelUp() {
+  levelUpTimeouts.forEach(t => clearTimeout(t));
+  levelUpTimeouts = [];
 }
 
 /**
@@ -214,16 +223,19 @@ export function blowCandles() {
   // Transition to Letter screen after celebration pause
   const t = setTimeout(() => {
     switchScreen('screen-letter');
-    triggerLevelUp();
-    runTypewriter();
+    triggerLevelUp(() => {
+      runTypewriter();
+    });
   }, 2400);
   typewriterTimeouts.push(t);
 }
 
 /**
  * Trigger Level Up animation banner & HUD badge update
+ * @param {Function} [onComplete] Callback fired after level up animation completes
  */
-export function triggerLevelUp() {
+export function triggerLevelUp(onComplete) {
+  clearLevelUp();
   playSfx('levelup');
 
   if (typeof document === 'undefined') return;
@@ -236,19 +248,29 @@ export function triggerLevelUp() {
   // Vertical rolling level animation: waits for EXP bar to fill, then rolls up!
   const roller = document.getElementById('level-roller');
   if (roller) {
-    setTimeout(() => {
+    const tRoller = setTimeout(() => {
       roller.classList.add('rolled');
       playSfx('coin');
     }, 1200);
+    levelUpTimeouts.push(tRoller);
   }
 
   const hudLevel = document.getElementById('hud-level');
   if (hudLevel) {
     hudLevel.classList.add('level-up-flash');
-    setTimeout(() => {
+    const tHud = setTimeout(() => {
       hudLevel.textContent = `LEVEL: ${BIRTHDAY_CONFIG.level}`;
     }, 1200);
+    levelUpTimeouts.push(tHud);
   }
+
+  // Wait until level up banner animation sequence finishes before callback
+  const tDone = setTimeout(() => {
+    if (typeof onComplete === 'function') {
+      onComplete();
+    }
+  }, 2500);
+  levelUpTimeouts.push(tDone);
 }
 
 /**
@@ -258,6 +280,7 @@ export function resetGame() {
   isBlowing = false;
   clearTypewriter();
   clearCakePrompt();
+  clearLevelUp();
   stopFireworks();
 
   if (typeof document === 'undefined') return;
