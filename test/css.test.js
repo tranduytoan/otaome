@@ -15,3 +15,10 @@ test('style.css defines cyan theme variables, pixelated rendering and animations
   assert.match(css, /\.retro-btn/);
   assert.match(css, /@media\s*\(max-width:/);
 });
+
+test('style.css embeds Departure Mono Viet font for full Vietnamese diacritics support', () => {
+  assert.ok(fs.existsSync('fonts/DepartureMonoViet-v3.otf'), 'Font file DepartureMonoViet-v3.otf must exist');
+  const css = fs.readFileSync('style.css', 'utf8');
+  assert.match(css, /Departure Mono Viet/);
+  assert.match(css, /fonts\/DepartureMonoViet-v3\.otf/);
+});
