@@ -93,7 +93,16 @@
 
     <!-- Screen 2: Cake & Candle Blowing Screen -->
     <section id="screen-cake" class="game-screen">
-      <div class="pixel-room">
+      <!-- Quest Tracker Objective HUD -->
+      <div id="quest-tracker" class="quest-tracker-box">
+        <div class="quest-tracker-badge">
+          <span class="quest-icon blink">⚔️</span>
+          <span class="quest-phase-tag">QUEST <span id="quest-number">1/4</span></span>
+        </div>
+        <div id="quest-text" class="quest-text">Nhiệm vụ: Tìm cách mở hộp quà 🎁</div>
+      </div>
+
+      <div id="pixel-room" class="pixel-room">
         <!-- Festive Garlands -->
         <div class="bunting-flags">
           <span class="flag f-cyan">H</span>
@@ -110,64 +119,145 @@
           <span class="flag f-cyan">Y</span>
         </div>
 
-        <!-- Window with Pixel Moon & Stars -->
-        <div class="pixel-window">
-          <div class="window-moon"></div>
-          <div class="window-cloud c1"></div>
-          <div class="window-cloud c2"></div>
+        <!-- Room Upper Area: Window & Pixel Light Switch -->
+        <div class="room-wall-fixtures">
+          <!-- Window with Pixel Moon & Stars -->
+          <div class="pixel-window">
+            <div class="window-moon"></div>
+            <div class="window-cloud c1"></div>
+            <div class="window-cloud c2"></div>
+          </div>
+
+          <!-- Light Switch on Room Wall -->
+          <div id="pixel-light-switch" class="pixel-light-switch locked" title="Công tắc đèn (Chưa mở khóa)">
+            <div class="switch-plate">
+              <div class="switch-screw top"></div>
+              <div id="switch-toggle" class="switch-toggle">
+                <div class="toggle-knob"></div>
+              </div>
+              <div class="switch-screw bottom"></div>
+              <span class="switch-label">LIGHT</span>
+            </div>
+          </div>
         </div>
 
-        <!-- Pixel Cake Table -->
+        <!-- Pixel Cake Table Area -->
         <div class="cake-table-area">
           <div class="pixel-cake-container">
-            <!-- Birthday Candles with Flames -->
-            <div class="candles-wrapper">
-              <div class="pixel-candle candle-1">
-                <div class="flame flame-1"></div>
-                <div class="smoke smoke-1"></div>
-                <div class="wick"></div>
-                <div class="candle-body"></div>
+            <!-- Pixel Gift Box (Covers cake initially for Quest 1) -->
+            <div id="pixel-gift-box" class="pixel-gift-box" title="Chạm để mở hộp quà">
+              <div class="gift-lid" id="gift-lid">
+                <div class="gift-bow"></div>
+                <div class="gift-lid-cap"></div>
               </div>
-              <div class="pixel-candle candle-2">
-                <div class="flame flame-2"></div>
-                <div class="smoke smoke-2"></div>
-                <div class="wick"></div>
-                <div class="candle-body"></div>
+              <div class="gift-body" id="gift-body">
+                <div class="gift-ribbon-v"></div>
+                <div class="gift-ribbon-h"></div>
+                <div class="gift-tag">FOR THÙY ♥</div>
               </div>
-              <div class="pixel-candle candle-3">
-                <div class="flame flame-3"></div>
-                <div class="smoke smoke-3"></div>
-                <div class="wick"></div>
-                <div class="candle-body"></div>
+              <div class="gift-hint-text blink">MỞ QUÀ NÀO! 👆</div>
+            </div>
+
+            <!-- Birthday Cake Display (Revealed after opening gift box) -->
+            <div id="cake-display" class="cake-display-wrapper" style="display: none;">
+              <!-- Birthday Candles with Flames (Interactive in Quest 4) -->
+              <div class="candles-wrapper">
+                <div class="pixel-candle candle-1" data-candle="1" title="Chạm để thổi nến 1">
+                  <div class="flame flame-1"></div>
+                  <div class="smoke smoke-1"></div>
+                  <div class="wick"></div>
+                  <div class="candle-body"></div>
+                </div>
+                <div class="pixel-candle candle-2" data-candle="2" title="Chạm để thổi nến 2">
+                  <div class="flame flame-2"></div>
+                  <div class="smoke smoke-2"></div>
+                  <div class="wick"></div>
+                  <div class="candle-body"></div>
+                </div>
+                <div class="pixel-candle candle-3" data-candle="3" title="Chạm để thổi nến 3">
+                  <div class="flame flame-3"></div>
+                  <div class="smoke smoke-3"></div>
+                  <div class="wick"></div>
+                  <div class="candle-body"></div>
+                </div>
+              </div>
+
+              <!-- 2-Tier Pixel Birthday Cake -->
+              <div class="pixel-cake">
+                <div class="cake-tier tier-top">
+                  <div class="frosting-drips"></div>
+                  <div class="cherries">
+                    <span class="cherry"></span>
+                    <span class="cherry"></span>
+                    <span class="cherry"></span>
+                  </div>
+                </div>
+                <div class="cake-tier tier-bottom">
+                  <div class="tier-pattern"></div>
+                </div>
+                <div class="cake-plate"></div>
               </div>
             </div>
 
-            <!-- 2-Tier Pixel Birthday Cake -->
-            <div class="pixel-cake">
-              <div class="cake-tier tier-top">
-                <div class="frosting-drips"></div>
-                <div class="cherries">
-                  <span class="cherry"></span>
-                  <span class="cherry"></span>
-                  <span class="cherry"></span>
+            <!-- Table items slot: Falling Letter and Star -->
+            <div class="table-items-slot">
+              <!-- Mini Wish Letter (Falls down after turning off lights) -->
+              <div id="table-wish-letter" class="table-wish-letter" style="display: none;" title="Chạm để viết điều ước">
+                <div class="mini-envelope-pixel">
+                  <div class="mini-flap"></div>
+                  <div class="mini-seal">♥</div>
                 </div>
+                <span class="mini-letter-label blink">ĐIỀU ƯỚC ✉️</span>
               </div>
-              <div class="cake-tier tier-bottom">
-                <div class="tier-pattern"></div>
+
+              <!-- Wishing Star (Appears after wish sent) -->
+              <div id="table-wish-star" class="table-wish-star" style="display: none;" title="Điều ước đã gửi gắm vào ngôi sao">
+                <span class="pixel-star-icon">⭐</span>
               </div>
-              <div class="cake-plate"></div>
             </div>
           </div>
 
           <div class="cake-action-box">
-            <p id="cake-prompt" class="cake-prompt">Hãy ước một điều ước thật đẹp và thổi nến nhé!</p>
-            <button id="btn-blow" class="retro-btn btn-lg btn-glow" disabled style="opacity: 0.5; cursor: not-allowed;">
+            <!-- Toast hint for quest actions (e.g. "Hãy tắt đèn trước khi thổi nến nhé!") -->
+            <div id="quest-toast" class="quest-toast" style="display: none;"></div>
+
+            <!-- Prompt text displayed after submitting wish -->
+            <p id="cake-prompt" class="cake-prompt" style="display: none;"></p>
+
+            <!-- Submit Wish Button (appears after typing wish) -->
+            <button id="btn-submit-wish" class="retro-btn btn-lg btn-glow" style="display: none;">
+              ✨ GỬI ĐIỀU ƯỚC VÀO CÁC VÌ SAO
+            </button>
+
+            <!-- Legacy fallback button for existing automated test compatibility -->
+            <button id="btn-blow" class="retro-btn btn-lg btn-glow" disabled style="display: none;">
               💨 THỔI NẾN NGAY
             </button>
           </div>
         </div>
       </div>
     </section>
+
+    <!-- Wish Modal (Nhiệm vụ 3: Viết điều ước) -->
+    <div id="wish-modal" class="pixel-modal-backdrop" style="display: none;">
+      <div class="pixel-modal-box wish-letter-modal">
+        <button type="button" id="btn-close-wish" class="btn-modal-close" title="Gập thư lại cất vào bàn" aria-label="Đóng thư">✕</button>
+        
+        <div class="modal-envelope-header">
+          <div class="envelope-stamp">29/10</div>
+          <h3 class="modal-title glow-cyan">ĐIỀU ƯỚC SINH NHẬT</h3>
+          <p class="modal-sub">Gửi gắm ước nguyện bí mật tới các vì sao</p>
+        </div>
+
+        <div class="modal-textarea-wrapper">
+          <textarea id="wish-input" class="pixel-textarea" placeholder="Hãy viết điều ước chân thành nhất của Thu Thùy tại đây..." rows="4" maxlength="300"></textarea>
+        </div>
+
+        <div class="modal-footer-tip">
+          <span>Nhấn nút ✕ ở góc trên để cất thư lại cạnh bánh nhé</span>
+        </div>
+      </div>
+    </div>
 
     <!-- Screen 3: Canvas for Pixel Fireworks & Confetti -->
     <canvas id="fireworks-canvas"></canvas>

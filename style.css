@@ -574,6 +574,574 @@ body {
   width: 100%;
 }
 
+/* ==========================================================================
+   Quest Tracker HUD
+   ========================================================================== */
+.quest-tracker-box {
+  width: 100%;
+  max-width: 620px;
+  background: rgba(6, 14, 34, 0.95);
+  border: 3px solid var(--cyan-dark);
+  box-shadow: 
+    0 0 0 2px var(--dark-border),
+    0 0 12px var(--cyan-glow);
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+}
+
+.quest-tracker-box.quest-flash {
+  border-color: var(--gold);
+  box-shadow: 
+    0 0 0 2px var(--dark-border),
+    0 0 20px var(--gold-glow);
+  animation: questFlashAnim 0.8s ease-in-out;
+}
+
+@keyframes questFlashAnim {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.03); background: #13274f; }
+  100% { transform: scale(1); }
+}
+
+.quest-tracker-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-deep);
+  border: 2px solid var(--gold);
+  padding: 4px 8px;
+  color: var(--gold);
+  font-size: 0.72rem;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.quest-text {
+  flex: 1;
+  font-size: 0.88rem;
+  color: #ffffff;
+  line-height: 1.4;
+  letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   Room Fixtures: Light Switch & Dark Mode
+   ========================================================================== */
+.room-wall-fixtures {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  margin-bottom: 20px;
+  position: relative;
+  width: 100%;
+}
+
+.pixel-light-switch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.1s ease, filter 0.2s ease;
+  user-select: none;
+}
+
+.pixel-light-switch.locked {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: grayscale(0.8);
+}
+
+.switch-plate {
+  width: 38px;
+  height: 60px;
+  background: #cbd5e1;
+  border: 3px solid var(--dark-border);
+  box-shadow: 
+    inset -2px -2px 0 0 #94a3b8,
+    inset 2px 2px 0 0 #f8fafc,
+    0 0 8px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+  position: relative;
+}
+
+.switch-screw {
+  width: 4px;
+  height: 4px;
+  background: #64748b;
+  border-radius: 0;
+}
+
+.switch-toggle {
+  width: 16px;
+  height: 24px;
+  background: #334155;
+  border: 2px solid var(--dark-border);
+  position: relative;
+  transition: all 0.15s ease;
+}
+
+.toggle-knob {
+  width: 12px;
+  height: 10px;
+  background: var(--gold);
+  border: 1px solid var(--dark-border);
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  box-shadow: 0 0 6px var(--gold-glow);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.switch-toggle.switched-off .toggle-knob {
+  transform: translateY(10px);
+  background: #64748b;
+  box-shadow: none;
+}
+
+.switch-label {
+  font-size: 0.45rem;
+  color: #1e293b;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+/* Dark Mode Room Effects */
+.pixel-room {
+  transition: background-color 0.5s ease, box-shadow 0.5s ease;
+}
+
+.pixel-room.dark-mode {
+  background: #02050e;
+  border-color: #008899;
+  box-shadow: 
+    0 0 0 4px var(--dark-border),
+    inset 0 0 80px rgba(0, 0, 0, 0.95),
+    0 0 30px rgba(0, 180, 216, 0.2);
+}
+
+.pixel-room.dark-mode .bunting-flags {
+  filter: brightness(0.65);
+}
+
+.pixel-room.dark-mode .window-cloud {
+  background: #0a192f;
+}
+
+.pixel-room.dark-mode #cake-display {
+  filter: drop-shadow(0 0 16px rgba(255, 209, 102, 0.75)) drop-shadow(0 0 32px rgba(0, 245, 255, 0.45));
+}
+
+.pixel-room.dark-mode .flame {
+  filter: drop-shadow(0 0 10px #ffd166) drop-shadow(0 0 20px #ff9e00);
+  transform: scale(1.15);
+}
+
+.pixel-room.dark-mode .cake-plate {
+  box-shadow: 0 4px 14px rgba(0, 245, 255, 0.35);
+}
+
+/* ==========================================================================
+   Pixel Gift Box (Quest 1)
+   ========================================================================== */
+.pixel-gift-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  animation: giftFloat 2s infinite ease-in-out;
+  padding: 10px;
+  position: relative;
+  z-index: 10;
+}
+
+@keyframes giftFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.gift-lid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.gift-bow {
+  width: 24px;
+  height: 12px;
+  background: var(--gold);
+  border: 2px solid var(--dark-border);
+  box-shadow: 
+    -6px -4px 0 0 var(--gold),
+    6px -4px 0 0 var(--gold),
+    0 0 8px var(--gold-glow);
+  margin-bottom: 2px;
+}
+
+.gift-lid-cap {
+  width: 160px;
+  height: 22px;
+  background: var(--cyan-primary);
+  border: 4px solid var(--dark-border);
+  box-shadow: 
+    inset 0 3px 0 0 var(--cyan-light),
+    inset 0 -3px 0 0 var(--cyan-dark),
+    0 4px 0 0 rgba(0, 0, 0, 0.4);
+}
+
+.gift-body {
+  width: 144px;
+  height: 110px;
+  background: var(--cyan-light);
+  border: 4px solid var(--dark-border);
+  position: relative;
+  margin-top: -2px;
+  box-shadow: 
+    inset 0 0 0 4px var(--cyan-dark),
+    0 8px 0 0 rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.gift-ribbon-v {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 22px;
+  background: var(--gold);
+  border-left: 2px solid var(--dark-border);
+  border-right: 2px solid var(--dark-border);
+}
+
+.gift-ribbon-h {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: var(--gold);
+  border-top: 2px solid var(--dark-border);
+  border-bottom: 2px solid var(--dark-border);
+}
+
+.gift-tag {
+  position: relative;
+  z-index: 5;
+  background: #ffffff;
+  color: var(--bg-deep);
+  font-size: 0.62rem;
+  padding: 4px 8px;
+  font-weight: bold;
+  border: 2px solid var(--dark-border);
+  box-shadow: 2px 2px 0 0 rgba(0, 0, 0, 0.3);
+  transform: rotate(-6deg);
+}
+
+.gift-hint-text {
+  margin-top: 14px;
+  font-size: 0.85rem;
+  color: var(--gold);
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-shadow: 0 0 8px var(--gold-glow);
+}
+
+/* Opening animation */
+.pixel-gift-box.opening .gift-lid {
+  transform: translateY(-90px) rotate(-18deg);
+  opacity: 0;
+}
+
+.pixel-gift-box.opening .gift-body {
+  transform: translateY(40px) scale(0.9);
+  opacity: 0;
+}
+
+.pixel-gift-box.opening .gift-hint-text {
+  opacity: 0;
+}
+
+.cake-display-wrapper.revealed {
+  animation: cakeReveal 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes cakeReveal {
+  0% { transform: scale(0.7); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ==========================================================================
+   Table Items Slot: Mini Letter & Star (Quests 3 & 4)
+   ========================================================================== */
+.table-items-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 14px;
+  min-height: 44px;
+}
+
+.table-wish-letter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #091a38;
+  border: 2px solid var(--gold);
+  box-shadow: 
+    0 0 10px var(--gold-glow),
+    inset 0 0 6px rgba(255, 209, 102, 0.3);
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  user-select: none;
+}
+
+.table-wish-letter:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 18px var(--gold);
+}
+
+.table-wish-letter.falling-letter {
+  animation: letterFloatDown 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes letterFloatDown {
+  0% { transform: translateY(-70px) scale(0.6); opacity: 0; }
+  60% { transform: translateY(6px) scale(1.05); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.table-wish-letter.flying-to-window {
+  animation: letterFlyAway 0.9s ease-in forwards;
+}
+
+@keyframes letterFlyAway {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  50% { transform: translate(60px, -90px) scale(0.8) rotate(15deg); opacity: 0.8; }
+  100% { transform: translate(120px, -180px) scale(0.2) rotate(35deg); opacity: 0; }
+}
+
+.mini-envelope-pixel {
+  width: 22px;
+  height: 16px;
+  background: #fdf5e6;
+  border: 2px solid var(--dark-border);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mini-flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-top: 7px solid #e2d1b6;
+}
+
+.mini-seal {
+  font-size: 0.6rem;
+  color: #ff3366;
+  position: relative;
+  z-index: 2;
+}
+
+.mini-letter-label {
+  font-size: 0.75rem;
+  color: var(--gold);
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.table-wish-star {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  animation: starDrop 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, starGlow 1.5s infinite alternate ease-in-out;
+}
+
+@keyframes starDrop {
+  0% { transform: translateY(-60px) scale(0.4); opacity: 0; }
+  100% { transform: translateY(0) scale(1.2); opacity: 1; }
+}
+
+@keyframes starGlow {
+  0% { filter: drop-shadow(0 0 6px var(--gold-glow)); transform: scale(1); }
+  100% { filter: drop-shadow(0 0 16px #ffd166); transform: scale(1.15); }
+}
+
+/* ==========================================================================
+   Wish Modal & Floating Quest Toast
+   ========================================================================== */
+.pixel-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(2, 8, 19, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  padding: 16px;
+  backdrop-filter: blur(2px);
+}
+
+.wish-letter-modal {
+  max-width: 540px;
+  width: 100%;
+  background: var(--bg-card);
+  border: 4px solid var(--gold);
+  box-shadow: 
+    0 0 0 4px var(--dark-border),
+    0 0 28px var(--gold-glow),
+    inset 0 0 14px rgba(255, 209, 102, 0.15);
+  padding: 26px 20px 20px 20px;
+  position: relative;
+  animation: modalPopup 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes modalPopup {
+  0% { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.btn-modal-close {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  width: 34px;
+  height: 34px;
+  background: #ff4757;
+  color: #ffffff;
+  border: 3px solid var(--dark-border);
+  box-shadow: 
+    0 0 8px rgba(255, 71, 87, 0.6),
+    inset -2px -2px 0 0 #a31d27,
+    inset 2px 2px 0 0 #ff858d;
+  font-family: var(--pixel-font);
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s ease;
+  z-index: 10;
+}
+
+.btn-modal-close:hover {
+  background: #ff6b81;
+  transform: scale(1.1);
+}
+
+.modal-envelope-header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.envelope-stamp {
+  display: inline-block;
+  border: 2px dashed var(--cyan-primary);
+  color: var(--cyan-light);
+  font-size: 0.65rem;
+  padding: 3px 8px;
+  margin-bottom: 8px;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  margin-bottom: 6px;
+}
+
+.modal-sub {
+  font-size: 0.78rem;
+  color: var(--cyan-soft);
+  letter-spacing: 0.5px;
+}
+
+.modal-textarea-wrapper {
+  margin-bottom: 14px;
+}
+
+.pixel-textarea {
+  width: 100%;
+  font-family: var(--pixel-font);
+  font-size: 1rem;
+  line-height: 1.8;
+  padding: 14px;
+  background: #020713;
+  color: #ffffff;
+  border: 3px solid var(--cyan-dark);
+  box-shadow: 
+    inset 2px 2px 0 0 #000,
+    0 0 0 2px var(--dark-border);
+  outline: none;
+  resize: vertical;
+  min-height: 110px;
+}
+
+.pixel-textarea:focus {
+  border-color: var(--cyan-primary);
+  box-shadow: 
+    inset 2px 2px 0 0 #000,
+    0 0 14px var(--cyan-glow),
+    0 0 0 2px var(--dark-border);
+}
+
+.modal-footer-tip {
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--gray-pixel);
+  line-height: 1.5;
+}
+
+/* Floating Quest Toast */
+.quest-toast {
+  display: inline-block;
+  background: #06152d;
+  color: var(--gold);
+  border: 2px solid var(--gold);
+  box-shadow: 
+    0 0 0 2px var(--dark-border),
+    0 0 14px var(--gold-glow);
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  margin-bottom: 14px;
+  animation: toastSlideDown 0.3s ease-out;
+  transition: opacity 0.4s ease;
+}
+
+.quest-toast.fade-out {
+  opacity: 0;
+}
+
+@keyframes toastSlideDown {
+  0% { transform: translateY(-10px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
 .pixel-cake-container {
   display: flex;
   flex-direction: column;
@@ -1223,5 +1791,33 @@ body {
   .btn-lg {
     font-size: 0.85rem;
     padding: 14px 20px;
+  }
+  .quest-tracker-box {
+    padding: 8px 10px;
+    gap: 6px;
+    flex-direction: column;
+    text-align: center;
+  }
+  .quest-text {
+    font-size: 0.78rem;
+    text-align: center;
+  }
+  .room-wall-fixtures {
+    gap: 18px;
+  }
+  .gift-lid-cap {
+    width: 136px;
+    height: 20px;
+  }
+  .gift-body {
+    width: 122px;
+    height: 94px;
+  }
+  .wish-letter-modal {
+    padding: 20px 14px 16px 14px;
+  }
+  .pixel-textarea {
+    font-size: 0.88rem;
+    min-height: 95px;
   }
 }

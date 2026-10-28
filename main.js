@@ -86,6 +86,417 @@ let typewriterTimeouts = [];
 let cakePromptTimeouts = [];
 let levelUpTimeouts = [];
 
+// Quest Definitions
+export const QUESTS = [
+  { id: 1, key: 'gift', title: 'Nhiệm vụ: Tìm cách mở hộp quà 🎁' },
+  { id: 2, key: 'lights', title: 'Nhiệm vụ: Tìm cách tắt đèn phòng 💡' },
+  { id: 3, key: 'wish', title: 'Nhiệm vụ: Ước một điều ước thật đẹp ✉️' },
+  { id: 4, key: 'candles', title: 'Nhiệm vụ: Tìm cách thổi tắt nến trong phòng tối 🕯️' },
+  { id: 5, key: 'complete', title: 'Tất cả nhiệm vụ đã hoàn thành! 🏆' }
+];
+
+let currentQuestIndex = 0;
+let isBoxOpened = false;
+let isLightsOff = false;
+let hasTurnedOffLightsFirstTime = false;
+let hasLetterFallen = false;
+let userWishText = '';
+let isWishSubmitted = false;
+let candlesBlownState = { 1: false, 2: false, 3: false };
+let toastTimeout = null;
+
+/**
+ * Get the current active quest
+ */
+export function getCurrentQuest() {
+  return QUESTS[Math.min(currentQuestIndex, QUESTS.length - 1)];
+}
+
+/**
+ * Update Quest Tracker HUD UI
+ */
+export function updateQuestUI() {
+  if (typeof document === 'undefined') return;
+  const questEl = document.getElementById('quest-text');
+  const numEl = document.getElementById('quest-number');
+  const trackerBox = document.getElementById('quest-tracker');
+  const quest = getCurrentQuest();
+
+  if (numEl) {
+    numEl.textContent = currentQuestIndex < 4 ? `${currentQuestIndex + 1}/4` : '4/4 ✓';
+  }
+  if (questEl) {
+    questEl.textContent = quest.title;
+  }
+  if (trackerBox) {
+    trackerBox.classList.remove('quest-flash');
+    void trackerBox.offsetWidth; // Trigger reflow for animation restart
+    trackerBox.classList.add('quest-flash');
+  }
+}
+
+/**
+ * Show a retro floating toast hint
+ */
+export function showToast(msg) {
+  if (typeof document === 'undefined') return;
+  const toast = document.getElementById('quest-toast');
+  if (!toast) return;
+  if (toastTimeout) {
+    clearTimeout(toastTimeout);
+    toastTimeout = null;
+  }
+  toast.textContent = msg;
+  toast.style.display = 'block';
+  toast.classList.remove('fade-out');
+  toastTimeout = setTimeout(() => {
+    toast.classList.add('fade-out');
+    setTimeout(() => {
+      if (toast.classList.contains('fade-out')) {
+        toast.style.display = 'none';
+      }
+    }, 400);
+  }, 2400);
+}
+
+/**
+ * Quest 1: Open the Gift Box to reveal the cake
+ */
+export function openGiftBox() {
+  if (isBoxOpened) return { success: false, reason: 'already_opened' };
+  isBoxOpened = true;
+  playSfx('chime');
+
+  if (typeof document !== 'undefined') {
+    const giftBox = document.getElementById('pixel-gift-box');
+    const cakeDisplay = document.getElementById('cake-display');
+    const lightSwitch = document.getElementById('pixel-light-switch');
+
+    if (giftBox) {
+      giftBox.classList.add('opening');
+      setTimeout(() => {
+        giftBox.style.display = 'none';
+        if (cakeDisplay) {
+          cakeDisplay.style.display = 'block';
+          cakeDisplay.classList.add('revealed');
+        }
+      }, 500);
+    }
+
+    if (lightSwitch) {
+      lightSwitch.classList.remove('locked');
+      lightSwitch.title = 'Chạm để bật/tắt đèn';
+    }
+  }
+
+  if (currentQuestIndex === 0) {
+    currentQuestIndex = 1;
+    playSfx('coin');
+    updateQuestUI();
+    showToast('Hộp quà đã mở! Hãy tìm cách tắt đèn phòng nhé! 💡');
+  }
+
+  return { success: true };
+}
+
+/**
+ * Quest 2: Toggle room light switch
+ */
+export function toggleLights() {
+  if (!isBoxOpened) {
+    showToast('Hãy mở hộp quà trước đã nhé! 🎁');
+    playSfx('error');
+    return { success: false, reason: 'box_not_opened' };
+  }
+
+  isLightsOff = !isLightsOff;
+  playSfx('click');
+
+  if (typeof document !== 'undefined') {
+    const room = document.getElementById('pixel-room');
+    const toggle = document.getElementById('switch-toggle');
+    if (room) {
+      if (isLightsOff) {
+        room.classList.add('dark-mode');
+      } else {
+        room.classList.remove('dark-mode');
+      }
+    }
+    if (toggle) {
+      if (isLightsOff) {
+        toggle.classList.add('switched-off');
+      } else {
+        toggle.classList.remove('switched-off');
+      }
+    }
+  }
+
+  // Turning off lights for the first time unlocks Quest 3
+  if (isLightsOff && !hasTurnedOffLightsFirstTime) {
+    hasTurnedOffLightsFirstTime = true;
+    if (currentQuestIndex === 1) {
+      currentQuestIndex = 2;
+      playSfx('coin');
+      updateQuestUI();
+      triggerFallingLetter();
+    }
+  }
+
+  return { success: true, lightsOff: isLightsOff };
+}
+
+/**
+ * Trigger mini wish letter dropping onto the cake table
+ */
+export function triggerFallingLetter() {
+  hasLetterFallen = true;
+  if (typeof document !== 'undefined') {
+    const letter = document.getElementById('table-wish-letter');
+    if (letter) {
+      letter.style.display = 'flex';
+      letter.classList.add('falling-letter');
+      showToast('Một lá thư bí mật rơi xuống cạnh bánh sinh nhật! ✉️');
+    }
+  }
+}
+
+/**
+ * Quest 3: Open wish modal
+ */
+export function openWishModal() {
+  if (typeof document === 'undefined') return;
+  const modal = document.getElementById('wish-modal');
+  const input = document.getElementById('wish-input');
+  if (modal) {
+    modal.style.display = 'flex';
+    if (input) {
+      input.focus();
+    }
+    playSfx('click');
+  }
+}
+
+/**
+ * Quest 3: Close wish modal
+ */
+export function closeWishModal() {
+  if (typeof document === 'undefined') return;
+  const modal = document.getElementById('wish-modal');
+  if (modal) {
+    modal.style.display = 'none';
+    playSfx('click');
+  }
+}
+
+/**
+ * Quest 3: Submit secret wish
+ */
+export function submitWish(customWish) {
+  if (isWishSubmitted) return { success: false, reason: 'already_submitted' };
+
+  let wish = typeof customWish === 'string' ? customWish.trim() : '';
+  if (!wish && typeof document !== 'undefined') {
+    const input = document.getElementById('wish-input');
+    if (input) wish = input.value.trim();
+  }
+
+  if (!wish && !customWish) {
+    showToast('Hãy viết điều ước của bạn trước khi gửi nhé! ✍️');
+    playSfx('error');
+    return { success: false, reason: 'empty_wish' };
+  }
+
+  userWishText = wish || 'Hạnh phúc và bình an';
+  BIRTHDAY_CONFIG.userWish = userWishText;
+  isWishSubmitted = true;
+  playSfx('chime');
+
+  if (typeof document !== 'undefined') {
+    const modal = document.getElementById('wish-modal');
+    if (modal) modal.style.display = 'none';
+
+    const btnSubmit = document.getElementById('btn-submit-wish');
+    if (btnSubmit) btnSubmit.style.display = 'none';
+
+    const letter = document.getElementById('table-wish-letter');
+    const star = document.getElementById('table-wish-star');
+    const promptEl = document.getElementById('cake-prompt');
+
+    if (letter) {
+      letter.classList.add('flying-to-window');
+      setTimeout(() => {
+        letter.style.display = 'none';
+        if (star) {
+          star.style.display = 'flex';
+          star.classList.add('dropping-star');
+          playSfx('coin');
+        }
+        if (promptEl) {
+          promptEl.textContent = 'Ước nguyện đã được gửi gắm vào các vì sao! ✨';
+          promptEl.style.display = 'block';
+          promptEl.style.color = '#ffd166';
+        }
+      }, 900);
+    }
+  }
+
+  if (currentQuestIndex === 2) {
+    currentQuestIndex = 3;
+    playSfx('coin');
+    updateQuestUI();
+    showToast('Điều ước đã bay vào các vì sao! Hãy thổi tắt 3 ngọn nến trong bóng tối nhé! 🕯️');
+  }
+
+  return { success: true, wish: userWishText };
+}
+
+/**
+ * Quest 4: Blow an individual candle
+ */
+export function blowIndividualCandle(candleNumber) {
+  const num = Number(candleNumber);
+  if (!isWishSubmitted) {
+    showToast('Hãy ước và gửi điều ước trước khi thổi nến nhé! ✉️');
+    playSfx('error');
+    return { success: false, reason: 'wish_not_submitted' };
+  }
+
+  if (!isLightsOff) {
+    showToast('Hãy tắt đèn phòng trước khi thổi nến nhé! 💡');
+    playSfx('error');
+    return { success: false, reason: 'lights_are_on' };
+  }
+
+  if (candlesBlownState[num]) {
+    return { success: false, reason: 'already_blown' };
+  }
+
+  candlesBlownState[num] = true;
+  playSfx('blow');
+
+  if (typeof document !== 'undefined') {
+    const candleEl = document.querySelector(`.pixel-candle.candle-${num}`);
+    if (candleEl) {
+      candleEl.classList.add('extinguished');
+    }
+  }
+
+  const blownCount = Object.values(candlesBlownState).filter(Boolean).length;
+  if (blownCount === 3) {
+    isBlowing = true;
+    currentQuestIndex = 4;
+    updateQuestUI();
+
+    if (typeof document !== 'undefined') {
+      const promptEl = document.getElementById('cake-prompt');
+      if (promptEl) {
+        promptEl.textContent = 'Tất cả nến đã tắt! Điều ước sẽ thành hiện thực! ✨';
+        promptEl.style.display = 'block';
+        promptEl.style.color = 'var(--gold)';
+      }
+    }
+
+    // Start celebration & transition to letter
+    playSfx('firework');
+    startFireworks(6000);
+
+    const t = setTimeout(() => {
+      if (currentScreen === 'screen-cake') {
+        switchScreen('screen-letter');
+        triggerLevelUp(() => {
+          runTypewriter();
+        });
+      }
+    }, 2400);
+    typewriterTimeouts.push(t);
+
+    return { success: true, allBlown: true };
+  }
+
+  showToast(`Đã thổi tắt ${blownCount}/3 ngọn nến! 💨`);
+  return { success: true, allBlown: false, blownCount };
+}
+
+/**
+ * Reset all quest states
+ */
+export function resetQuests() {
+  currentQuestIndex = 0;
+  isBoxOpened = false;
+  isLightsOff = false;
+  hasTurnedOffLightsFirstTime = false;
+  hasLetterFallen = false;
+  userWishText = '';
+  isWishSubmitted = false;
+  candlesBlownState = { 1: false, 2: false, 3: false };
+  isBlowing = false;
+
+  if (typeof document !== 'undefined') {
+    const giftBox = document.getElementById('pixel-gift-box');
+    if (giftBox) {
+      giftBox.style.display = 'flex';
+      giftBox.classList.remove('opening');
+    }
+
+    const cakeDisplay = document.getElementById('cake-display');
+    if (cakeDisplay) {
+      cakeDisplay.style.display = 'none';
+      cakeDisplay.classList.remove('revealed');
+    }
+
+    const lightSwitch = document.getElementById('pixel-light-switch');
+    if (lightSwitch) {
+      lightSwitch.classList.add('locked');
+      lightSwitch.title = 'Công tắc đèn (Chưa mở khóa)';
+    }
+
+    const switchToggle = document.getElementById('switch-toggle');
+    if (switchToggle) {
+      switchToggle.classList.remove('switched-off');
+    }
+
+    const room = document.getElementById('pixel-room');
+    if (room) {
+      room.classList.remove('dark-mode');
+    }
+
+    const letter = document.getElementById('table-wish-letter');
+    if (letter) {
+      letter.style.display = 'none';
+      letter.classList.remove('falling-letter', 'flying-to-window');
+    }
+
+    const star = document.getElementById('table-wish-star');
+    if (star) {
+      star.style.display = 'none';
+      star.classList.remove('dropping-star');
+    }
+
+    const modal = document.getElementById('wish-modal');
+    if (modal) modal.style.display = 'none';
+
+    const input = document.getElementById('wish-input');
+    if (input) input.value = '';
+
+    const btnSubmit = document.getElementById('btn-submit-wish');
+    if (btnSubmit) btnSubmit.style.display = 'none';
+
+    const promptEl = document.getElementById('cake-prompt');
+    if (promptEl) {
+      promptEl.style.display = 'none';
+      promptEl.textContent = '';
+    }
+
+    const toast = document.getElementById('quest-toast');
+    if (toast) toast.style.display = 'none';
+
+    const candles = document.querySelectorAll('.pixel-candle');
+    candles.forEach(c => c.classList.remove('extinguished'));
+
+    updateQuestUI();
+  }
+}
+
 /**
  * Get current active screen ID
  */
@@ -208,7 +619,11 @@ export function runTypewriter() {
   clearTypewriter();
   container.textContent = '';
 
-  const paragraphs = BIRTHDAY_CONFIG.wishes;
+  const paragraphs = [...BIRTHDAY_CONFIG.wishes];
+  if (BIRTHDAY_CONFIG.userWish) {
+    paragraphs.splice(3, 0, `🌟 Điều ước của Thu Thùy: "${BIRTHDAY_CONFIG.userWish}" — Ước nguyện đã gửi gắm vào các vì sao, chúc điều ước này sớm thành hiện thực nhé! ✨`);
+  }
+
   const charSpeed = 35; // ms per character
   const paragraphPause = 750; // ms pause between paragraphs
 
@@ -366,6 +781,7 @@ export function stopAllEffects() {
   clearLevelUp();
   stopFireworks();
   stopBgm();
+  resetQuests();
 
   if (typeof document === 'undefined') return;
 
@@ -498,12 +914,72 @@ export function initApp() {
     btnStart.addEventListener('click', () => {
       initAudio();
       playSfx('coin');
+      resetQuests();
       switchScreen('screen-cake');
-      typeCakePrompt();
     });
   }
 
-  // Blow Candle Button
+  // Interactive Quest 1: Gift box click
+  const giftBox = document.getElementById('pixel-gift-box');
+  if (giftBox) {
+    giftBox.addEventListener('click', () => {
+      openGiftBox();
+    });
+  }
+
+  // Interactive Quest 2: Light switch click
+  const lightSwitch = document.getElementById('pixel-light-switch');
+  if (lightSwitch) {
+    lightSwitch.addEventListener('click', () => {
+      toggleLights();
+    });
+  }
+
+  // Interactive Quest 3: Table Wish Letter & Modal
+  const tableLetter = document.getElementById('table-wish-letter');
+  if (tableLetter) {
+    tableLetter.addEventListener('click', () => {
+      openWishModal();
+    });
+  }
+
+  const btnCloseWish = document.getElementById('btn-close-wish');
+  if (btnCloseWish) {
+    btnCloseWish.addEventListener('click', () => {
+      closeWishModal();
+    });
+  }
+
+  const wishInput = document.getElementById('wish-input');
+  const btnSubmitWish = document.getElementById('btn-submit-wish');
+  if (wishInput && btnSubmitWish) {
+    wishInput.addEventListener('input', () => {
+      if (wishInput.value.trim().length > 0 && !isWishSubmitted) {
+        btnSubmitWish.style.display = 'inline-block';
+      } else {
+        btnSubmitWish.style.display = 'none';
+      }
+    });
+  }
+
+  if (btnSubmitWish) {
+    btnSubmitWish.addEventListener('click', () => {
+      submitWish();
+    });
+  }
+
+  // Interactive Quest 4: Individual Candle click
+  const candleEls = document.querySelectorAll('.pixel-candle');
+  candleEls.forEach(c => {
+    c.addEventListener('click', () => {
+      const num = c.getAttribute('data-candle');
+      if (num) {
+        blowIndividualCandle(num);
+      }
+    });
+  });
+
+  // Blow Candle Button (legacy / fallback)
   const btnBlow = document.getElementById('btn-blow');
   if (btnBlow) {
     btnBlow.addEventListener('click', () => {
