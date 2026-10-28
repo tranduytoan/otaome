@@ -106,8 +106,19 @@ let candlesBlownState = { 1: false, 2: false, 3: false };
 let toastTimeout = null;
 let toastDismissTimeout = null;
 let questTypewriterTimeout = null;
+let questTransitionTimeout = null;
 let isQuestTextTyping = false;
 let pendingToast = null;
+
+/**
+ * Clear any pending quest transition animation timer
+ */
+export function clearQuestTransition() {
+  if (questTransitionTimeout) {
+    clearTimeout(questTransitionTimeout);
+    questTransitionTimeout = null;
+  }
+}
 
 /**
  * Get the current active quest
@@ -156,7 +167,7 @@ export function updateQuestUI(onComplete) {
   questEl.textContent = '';
   const characters = Array.from(quest.title);
   let charIdx = 0;
-  const speed = 28;
+  const speed = 55; // Relaxed JRPG typing speed for comfortable reading
 
   function typeChar() {
     if (charIdx < characters.length) {
@@ -203,6 +214,7 @@ export function clearToast() {
     if (toast) {
       toast.classList.remove('visible');
       toast.textContent = '';
+      toast.style.removeProperty('display');
     }
   }
 }
@@ -245,17 +257,20 @@ export function showToast(msg, options = {}) {
 
   toast.textContent = msg;
   toast.className = 'quest-toast';
+  toast.style.removeProperty('display');
   if (type === 'gold') {
     toast.classList.add('toast-gold');
   } else if (type === 'error') {
     toast.classList.add('toast-error');
   }
+  void toast.offsetWidth;
   toast.classList.add('visible');
 
   toastTimeout = setTimeout(() => {
     toast.classList.remove('visible');
     toastDismissTimeout = setTimeout(() => {
       toast.textContent = '';
+      toast.style.removeProperty('display');
       if (typeof onDismiss === 'function') {
         onDismiss();
       }
@@ -294,9 +309,21 @@ export function openGiftBox() {
   }
 
   if (currentQuestIndex === 0) {
-    currentQuestIndex = 1;
-    playSfx('coin');
-    updateQuestUI();
+    // Wait until gift box lid flies off (500ms) and cake finishes reveal animation (600ms) -> 1100ms
+    if (typeof document === 'undefined') {
+      currentQuestIndex = 1;
+      playSfx('coin');
+      updateQuestUI();
+    } else {
+      clearQuestTransition();
+      questTransitionTimeout = setTimeout(() => {
+        if (currentScreen === 'screen-cake' && currentQuestIndex === 0) {
+          currentQuestIndex = 1;
+          playSfx('coin');
+          updateQuestUI();
+        }
+      }, 1100);
+    }
   }
 
   return { success: true };
@@ -307,7 +334,7 @@ export function openGiftBox() {
  */
 export function toggleLights() {
   if (!isBoxOpened) {
-    showToast('Hãy mở hộp quà trước đã nhé! 🎁');
+    showToast('Hãy mở hộp quà trước đã nhé! 🎁', { type: 'error' });
     playSfx('error');
     return { success: false, reason: 'box_not_opened' };
   }
@@ -337,11 +364,24 @@ export function toggleLights() {
   // Turning off lights for the first time unlocks Quest 3
   if (isLightsOff && !hasTurnedOffLightsFirstTime) {
     hasTurnedOffLightsFirstTime = true;
+    triggerFallingLetter();
+
     if (currentQuestIndex === 1) {
-      currentQuestIndex = 2;
-      playSfx('coin');
-      updateQuestUI();
-      triggerFallingLetter();
+      if (typeof document === 'undefined') {
+        currentQuestIndex = 2;
+        playSfx('coin');
+        updateQuestUI();
+      } else {
+        // Wait for room to dim (500ms) and letter to float down (1000ms) -> 1100ms
+        clearQuestTransition();
+        questTransitionTimeout = setTimeout(() => {
+          if (currentScreen === 'screen-cake' && currentQuestIndex === 1) {
+            currentQuestIndex = 2;
+            playSfx('coin');
+            updateQuestUI();
+          }
+        }, 1100);
+      }
     }
   }
 
@@ -562,6 +602,7 @@ export function resetQuests() {
   candlesBlownState = { 1: false, 2: false, 3: false };
   isBlowing = false;
   clearToast();
+  clearQuestTransition();
   if (questTypewriterTimeout) {
     clearTimeout(questTypewriterTimeout);
     questTypewriterTimeout = null;
@@ -619,8 +660,7 @@ export function resetQuests() {
       promptEl.textContent = '';
     }
 
-    const toast = document.getElementById('quest-toast');
-    if (toast) toast.style.display = 'none';
+    clearToast();
 
     const candles = document.querySelectorAll('.pixel-candle');
     candles.forEach(c => c.classList.remove('extinguished'));

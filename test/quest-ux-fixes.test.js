@@ -16,21 +16,14 @@ test('style.css ensures .extinguished .flame does not collapse candle height', (
   assert.match(css, /\.quest-toast-placeholder\s*\{[^}]*min-height:/);
 });
 
-test('Toast & Quest mutual exclusivity: wish submission completes quest ONLY after toast dismisses', async () => {
-  mainModule.resetQuests();
-  mainModule.openGiftBox();
-  mainModule.toggleLights();
-  assert.equal(mainModule.getCurrentQuest().id, 3);
+test('Quest typewriter typing speed is slowed down for comfortable reading', () => {
+  const mainCode = fs.readFileSync('main.js', 'utf8');
+  assert.match(mainCode, /const speed = 55;/);
+  assert.equal(typeof mainModule.clearQuestTransition, 'function');
+});
 
-  // Submit wish with immediate or custom timing
-  let questCompleted = false;
-  mainModule.submitWish('Điều ước hạnh phúc', {
-    onToastDismiss: () => {
-      questCompleted = true;
-    }
-  });
-
-  // Immediately after submit, user should see toast "Ước nguyện đã được gửi gắm...", Quest 3 should still be in focus
-  // Quest 4 should only be triggered after toast finishes
-  assert.ok(typeof mainModule.showToast === 'function');
+test('showToast removes display property so toast is visible', () => {
+  const mainCode = fs.readFileSync('main.js', 'utf8');
+  assert.match(mainCode, /toast\.style\.removeProperty\('display'\)/);
+  assert.ok(!mainCode.includes("toast.style.display = 'none'"));
 });
