@@ -16,10 +16,16 @@ test('index.html has vertical level rolling transition structure', () => {
   assert.match(html, /22/);
 });
 
-test('style.css defines vertical slide animation for level numbers', () => {
+test('style.css defines vertical slide animation for level numbers without square border', () => {
   const css = fs.readFileSync('style.css', 'utf8');
   assert.match(css, /@keyframes\s+rollUpLevel/);
   assert.match(css, /\.level-roller/);
+  assert.match(css, /\.level-roller-viewport\s*\{[^}]*border:\s*none;/);
+});
+
+test('audio.js has audible text sound effect with square wave', () => {
+  const audio = fs.readFileSync('audio.js', 'utf8');
+  assert.match(audio, /case 'text':[\s\S]*?osc\.type\s*=\s*'square'/);
 });
 
 test('main.js plays text blip sound during typewriter effect', () => {

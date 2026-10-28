@@ -293,20 +293,20 @@ export function playSfx(type) {
     }
 
     case 'text': {
-      // Classic RPG / Undertale-style dialogue blip
+      // Classic RPG / Undertale-style dialogue blip (crisp 8-bit square wave)
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
-      osc.type = 'triangle';
-      const baseFreq = 480 + (Math.random() * 40 - 20);
+      osc.type = 'square';
+      const baseFreq = 540 + (Math.random() * 60 - 30);
       osc.frequency.setValueAtTime(baseFreq, now);
 
-      gain.gain.setValueAtTime(0.08, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+      gain.gain.setValueAtTime(0.35, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.045);
 
       osc.connect(gain);
       gain.connect(masterGain);
       osc.start(now);
-      osc.stop(now + 0.035);
+      osc.stop(now + 0.045);
       break;
     }
 

@@ -849,10 +849,10 @@ body {
   line-height: 38px;
   overflow: hidden;
   vertical-align: middle;
-  background: var(--bg-deep);
-  border: 2px solid var(--cyan-dark);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.7);
-  padding: 0 10px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0 4px;
 }
 
 .level-roller-track {
