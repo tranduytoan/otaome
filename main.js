@@ -270,6 +270,9 @@ export function openWishModal() {
   if (modal) {
     modal.style.display = 'flex';
     if (input) {
+      if (userWishText && !input.value) {
+        input.value = userWishText;
+      }
       input.focus();
     }
     playSfx('click');
@@ -290,7 +293,7 @@ export function closeWishModal() {
 
 /**
  * Handle closing the wish modal with X button:
- * If wish is non-empty and not yet submitted, completes Quest 3!
+ * If wish is non-empty and not yet submitted, reveals the "Gửi điều ước" button without sending yet (allows user to edit).
  */
 export function handleWishModalClose(overrideText) {
   let text = typeof overrideText === 'string' ? overrideText : '';
@@ -305,11 +308,19 @@ export function handleWishModalClose(overrideText) {
   closeWishModal();
 
   if (trimmed.length > 0 && !isWishSubmitted) {
-    submitWish(trimmed);
-    return { submitted: true, wish: trimmed };
+    userWishText = trimmed;
+    BIRTHDAY_CONFIG.userWish = userWishText;
+    if (typeof document !== 'undefined') {
+      const btnSubmit = document.getElementById('btn-submit-wish');
+      if (btnSubmit) {
+        btnSubmit.style.display = 'inline-block';
+      }
+      showToast('Đã lưu điều ước vào thư! Bấm "Gửi điều ước" khi bạn sẵn sàng nhé ✨');
+    }
+    return { readyToSend: true, wish: trimmed };
   }
 
-  return { submitted: false };
+  return { readyToSend: false };
 }
 
 /**
@@ -318,19 +329,19 @@ export function handleWishModalClose(overrideText) {
 export function submitWish(customWish) {
   if (isWishSubmitted) return { success: false, reason: 'already_submitted' };
 
-  let wish = typeof customWish === 'string' ? customWish.trim() : '';
+  let wish = typeof customWish === 'string' ? customWish.trim() : userWishText;
   if (!wish && typeof document !== 'undefined') {
     const input = document.getElementById('wish-input');
     if (input) wish = input.value.trim();
   }
 
-  if (!wish && !customWish) {
+  if (!wish) {
     showToast('Hãy viết điều ước của bạn trước khi gửi nhé! ✍️');
     playSfx('error');
     return { success: false, reason: 'empty_wish' };
   }
 
-  userWishText = wish || 'Hạnh phúc và bình an';
+  userWishText = wish;
   BIRTHDAY_CONFIG.userWish = userWishText;
   isWishSubmitted = true;
   playSfx('chime');
@@ -962,18 +973,7 @@ export function initApp() {
     });
   }
 
-  const wishInput = document.getElementById('wish-input');
   const btnSubmitWish = document.getElementById('btn-submit-wish');
-  if (wishInput && btnSubmitWish) {
-    wishInput.addEventListener('input', () => {
-      if (wishInput.value.trim().length > 0 && !isWishSubmitted) {
-        btnSubmitWish.style.display = 'inline-block';
-      } else {
-        btnSubmitWish.style.display = 'none';
-      }
-    });
-  }
-
   if (btnSubmitWish) {
     btnSubmitWish.addEventListener('click', () => {
       submitWish();

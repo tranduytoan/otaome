@@ -3,21 +3,27 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import * as mainModule from '../main.js';
 
-test('Wish completion trigger: closing wish modal with non-empty wish triggers submission and advances to Quest 4', () => {
+test('Wish completion trigger: closing wish modal with non-empty wish reveals submit button without auto-submitting; user must click submit', () => {
   mainModule.resetQuests();
   mainModule.openGiftBox();
   mainModule.toggleLights();
   assert.equal(mainModule.getCurrentQuest().id, 3);
 
-  // Closing with empty wish does not complete Quest 3
+  // Closing with empty wish does not show submit button or advance quest
   const resEmpty = mainModule.handleWishModalClose('');
-  assert.equal(resEmpty.submitted, false);
+  assert.equal(resEmpty.readyToSend, false);
   assert.equal(mainModule.getCurrentQuest().id, 3);
 
-  // Closing with non-empty wish triggers submission and advances to Quest 4
+  // Closing with non-empty wish saves wish and shows submit button, but does not advance quest yet (allows editing)
   const resNonEmpty = mainModule.handleWishModalClose('Chúc Thu Thùy tuổi 22 rực rỡ');
-  assert.equal(resNonEmpty.submitted, true);
-  assert.equal(mainModule.getCurrentQuest().id, 4);
+  assert.equal(resNonEmpty.readyToSend, true);
+  assert.equal(resNonEmpty.wish, 'Chúc Thu Thùy tuổi 22 rực rỡ');
+  assert.equal(mainModule.getCurrentQuest().id, 3, 'Must remain on Quest 3 until user clicks submit');
+
+  // Clicking submitWish explicitly sends wish and advances to Quest 4
+  const resSubmit = mainModule.submitWish();
+  assert.equal(resSubmit.success, true);
+  assert.equal(mainModule.getCurrentQuest().id, 4, 'Must advance to Quest 4 after user clicks submit');
 });
 
 test('No star element or animation after submitting wish', () => {
