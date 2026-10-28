@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Birthday Thu Thùy - Pixel Art Edition</title>
+  
+  <!-- Retro Pixel Font: Press Start 2P -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- CRT Scanlines & Vignette Overlay -->
+  <div id="crt-overlay" class="crt-scanlines"></div>
+
+  <!-- Top Retro HUD / Controls -->
+  <header class="hud-bar">
+    <div class="hud-left">
+      <span class="hud-badge">PLAYER 1: THU THÙY</span>
+      <span class="hud-badge">LEVEL: 22</span>
+    </div>
+    <div class="hud-right">
+      <button id="btn-mute" class="retro-btn btn-sm" aria-label="Bật tắt âm thanh">♪ BGM: ON</button>
+      <button id="btn-crt" class="retro-btn btn-sm" aria-label="Bật tắt hiệu ứng CRT">CRT: ON</button>
+    </div>
+  </header>
+
+  <!-- Main Game Stage Container -->
+  <main id="game-container">
+    
+    <!-- Screen 1: Start Screen -->
+    <section id="screen-start" class="game-screen active">
+      <div class="pixel-box title-card">
+        <div class="pixel-stars">
+          <span class="star s1">✦</span>
+          <span class="star s2">★</span>
+          <span class="star s3">✦</span>
+          <span class="star s4">★</span>
+        </div>
+        
+        <h1 class="pixel-title glow-cyan">HAPPY BIRTHDAY!</h1>
+        <h2 class="pixel-subtitle">THU THÙY</h2>
+        <div class="date-badge">29.10.2004 ➔ 29.10.2026</div>
+        
+        <div class="pixel-heart-container">
+          <div class="pixel-heart"></div>
+        </div>
+
+        <button id="btn-start" class="retro-btn btn-lg btn-glow">
+          <span class="blink">▶</span> PRESS START
+        </button>
+
+        <p class="press-tip">Chạm hoặc nhấn SPACE để bắt đầu hành trình</p>
+      </div>
+    </section>
+
+    <!-- Screen 2: Cake & Candle Blowing Screen -->
+    <section id="screen-cake" class="game-screen">
+      <div class="pixel-room">
+        <!-- Festive Garlands -->
+        <div class="bunting-flags">
+          <span class="flag f-cyan">H</span>
+          <span class="flag f-blue">B</span>
+          <span class="flag f-white">D</span>
+          <span class="flag f-gold">★</span>
+          <span class="flag f-cyan">T</span>
+          <span class="flag f-blue">H</span>
+          <span class="flag f-white">U</span>
+          <span class="flag f-cyan">★</span>
+          <span class="flag f-gold">T</span>
+          <span class="flag f-white">H</span>
+          <span class="flag f-blue">U</span>
+          <span class="flag f-cyan">Y</span>
+        </div>
+
+        <!-- Window with Pixel Moon & Stars -->
+        <div class="pixel-window">
+          <div class="window-moon"></div>
+          <div class="window-cloud c1"></div>
+          <div class="window-cloud c2"></div>
+        </div>
+
+        <!-- Pixel Cake Table -->
+        <div class="cake-table-area">
+          <div class="pixel-cake-container">
+            <!-- Birthday Candles with Flames -->
+            <div class="candles-wrapper">
+              <div class="pixel-candle candle-1">
+                <div class="flame flame-1"></div>
+                <div class="smoke smoke-1"></div>
+                <div class="wick"></div>
+                <div class="candle-body"></div>
+              </div>
+              <div class="pixel-candle candle-2">
+                <div class="flame flame-2"></div>
+                <div class="smoke smoke-2"></div>
+                <div class="wick"></div>
+                <div class="candle-body"></div>
+              </div>
+              <div class="pixel-candle candle-3">
+                <div class="flame flame-3"></div>
+                <div class="smoke smoke-3"></div>
+                <div class="wick"></div>
+                <div class="candle-body"></div>
+              </div>
+            </div>
+
+            <!-- 2-Tier Pixel Birthday Cake -->
+            <div class="pixel-cake">
+              <div class="cake-tier tier-top">
+                <div class="frosting-drips"></div>
+                <div class="cherries">
+                  <span class="cherry"></span>
+                  <span class="cherry"></span>
+                  <span class="cherry"></span>
+                </div>
+              </div>
+              <div class="cake-tier tier-bottom">
+                <div class="tier-pattern"></div>
+              </div>
+              <div class="cake-plate"></div>
+            </div>
+          </div>
+
+          <div class="cake-action-box">
+            <p id="cake-prompt" class="cake-prompt">Hãy ước một điều ước thật đẹp và thổi nến nhé!</p>
+            <button id="btn-blow" class="retro-btn btn-lg btn-glow">
+              💨 THỔI NẾN NGAY
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Screen 3: Canvas for Pixel Fireworks & Confetti -->
+    <canvas id="fireworks-canvas"></canvas>
+
+    <!-- Screen 4: Letter & Wishes Screen -->
+    <section id="screen-letter" class="game-screen">
+      <div class="letter-wrapper">
+        <div class="pixel-envelope-header">
+          <span class="badge-quest">QUEST COMPLETE! 🏆</span>
+          <h2 class="letter-title glow-cyan">THƯ CHÚC MỪNG SINH NHẬT</h2>
+        </div>
+
+        <div class="pixel-scroll-card">
+          <div class="card-corner tl"></div>
+          <div class="card-corner tr"></div>
+          <div class="card-corner bl"></div>
+          <div class="card-corner br"></div>
+
+          <div class="letter-body">
+            <div class="letter-greeting">Gửi Thu Thùy,</div>
+            <div id="letter-content" class="typewriter-text">
+              <!-- Content will be typed out dynamically by main.js -->
+            </div>
+            <div class="letter-signature">
+              <div class="sig-heart">♥</div>
+              <div class="sig-text">Happy Birthday, 29/10!</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="letter-actions">
+          <button id="btn-replay" class="retro-btn btn-md">
+            ↺ XEM LẠI TỪ ĐẦU
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="game-footer">
+    <span>PIXEL BIRTHDAY CARD 8-BIT EDITION &bull; FOR THU THÙY</span>
+  </footer>
+
+  <!-- Scripts -->
+  <script type="module" src="main.js"></script>
+</body>
+</html>
