@@ -10,7 +10,9 @@ import { initFireworks, startFireworks, stopFireworks, triggerBurst } from './fi
 export const BIRTHDAY_CONFIG = {
   name: 'Thu Thùy',
   birthdate: '29/10/2004',
+  baseLevel: 21,
   level: 22,
+  expGained: 1505,
   themeColor: '#00f5ff',
   wishes: [
     "Chúc mừng sinh nhật lần thứ 22 của Thu Thùy! ✨🎮",
@@ -123,10 +125,32 @@ export function blowCandles() {
   // Transition to Letter screen after celebration pause
   const t = setTimeout(() => {
     switchScreen('screen-letter');
-    playSfx('chime');
+    triggerLevelUp();
     runTypewriter();
   }, 2400);
   typewriterTimeouts.push(t);
+}
+
+/**
+ * Trigger Level Up animation banner & HUD badge update
+ */
+export function triggerLevelUp() {
+  playSfx('levelup');
+
+  if (typeof document === 'undefined') return;
+
+  const banner = document.getElementById('levelup-banner');
+  if (banner) {
+    banner.classList.add('show');
+  }
+
+  const hudLevel = document.getElementById('hud-level');
+  if (hudLevel) {
+    hudLevel.classList.add('level-up-flash');
+    setTimeout(() => {
+      hudLevel.textContent = `LEVEL: ${BIRTHDAY_CONFIG.level}`;
+    }, 700);
+  }
 }
 
 /**
@@ -164,6 +188,18 @@ export function resetGame() {
   const container = document.getElementById('letter-content');
   if (container) {
     container.innerHTML = '';
+  }
+
+  // Reset Level Up banner & HUD
+  const banner = document.getElementById('levelup-banner');
+  if (banner) {
+    banner.classList.remove('show');
+  }
+
+  const hudLevel = document.getElementById('hud-level');
+  if (hudLevel) {
+    hudLevel.textContent = `LEVEL: ${BIRTHDAY_CONFIG.baseLevel}`;
+    hudLevel.classList.remove('level-up-flash');
   }
 
   switchScreen('screen-start');

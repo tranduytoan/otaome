@@ -20,7 +20,7 @@
   <header class="hud-bar">
     <div class="hud-left">
       <span class="hud-badge">PLAYER 1: THU THÙY</span>
-      <span class="hud-badge">LEVEL: 22</span>
+      <span id="hud-level" class="hud-badge">LEVEL: 21</span>
     </div>
     <div class="hud-right">
       <button id="btn-mute" class="retro-btn btn-sm" aria-label="Bật tắt âm thanh">♪ BGM: ON</button>
@@ -141,8 +141,23 @@
     <!-- Screen 4: Letter & Wishes Screen -->
     <section id="screen-letter" class="game-screen">
       <div class="letter-wrapper">
+        <!-- Game Level Up & EXP Reward Banner -->
+        <div id="levelup-banner" class="levelup-banner">
+          <div class="levelup-header">
+            <span class="lvl-star">★</span> QUEST COMPLETE! <span class="lvl-star">★</span>
+          </div>
+          <div class="exp-gain-text">+1505 EXP! ⚡</div>
+          <div class="exp-bar-wrapper">
+            <div class="exp-bar-fill"></div>
+          </div>
+          <div class="level-transition">
+            <span class="old-lvl">LEVEL 21</span>
+            <span class="lvl-arrow">➔</span>
+            <span class="new-lvl glow-gold">LEVEL 22</span>
+          </div>
+        </div>
+
         <div class="pixel-envelope-header">
-          <span class="badge-quest">QUEST COMPLETE! 🏆</span>
           <h2 class="letter-title glow-cyan">THƯ CHÚC MỪNG SINH NHẬT</h2>
         </div>
 

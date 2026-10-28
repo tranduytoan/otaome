@@ -271,6 +271,27 @@ export function playSfx(type) {
       break;
     }
 
+    case 'levelup': {
+      // Classic RPG fanfare: G4 -> C5 -> E5 -> G5 -> C6
+      const fanfare = ['G4', 'C5', 'E5', 'G5', 'C6'];
+      fanfare.forEach((n, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(NOTE_FREQ[n], now + idx * 0.08);
+
+        gain.gain.setValueAtTime(0.45, now + idx * 0.08);
+        const noteDur = (idx === fanfare.length - 1) ? 0.45 : 0.12;
+        gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + noteDur);
+
+        osc.connect(gain);
+        gain.connect(masterGain);
+        osc.start(now + idx * 0.08);
+        osc.stop(now + idx * 0.08 + noteDur);
+      });
+      break;
+    }
+
     case 'click':
     default: {
       // Short blip

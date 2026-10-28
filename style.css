@@ -99,7 +99,7 @@ body {
   border-bottom: 4px solid var(--cyan-dark);
   position: relative;
   z-index: 100;
-  font-size: 0.65rem;
+  font-size: 0.8rem;
   letter-spacing: 1px;
 }
 
@@ -112,9 +112,10 @@ body {
 .hud-badge {
   background: var(--bg-deep);
   color: var(--cyan-primary);
-  padding: 4px 8px;
+  padding: 6px 12px;
   border: 2px solid var(--cyan-dark);
   box-shadow: 2px 2px 0 var(--dark-border);
+  transition: all 0.3s ease;
 }
 
 .hud-right {
@@ -170,18 +171,18 @@ body {
 }
 
 .btn-sm {
-  font-size: 0.55rem;
-  padding: 6px 10px;
+  font-size: 0.7rem;
+  padding: 8px 12px;
 }
 
 .btn-md {
-  font-size: 0.75rem;
-  padding: 12px 20px;
+  font-size: 0.95rem;
+  padding: 14px 24px;
 }
 
 .btn-lg {
-  font-size: 0.85rem;
-  padding: 16px 28px;
+  font-size: 1.05rem;
+  padding: 18px 32px;
 }
 
 .btn-glow {
@@ -284,25 +285,26 @@ body {
 }
 
 .pixel-title {
-  font-size: 1.4rem;
-  line-height: 1.5;
-  margin-bottom: 12px;
+  font-family: var(--title-font);
+  font-size: 1.7rem;
+  line-height: 1.4;
+  margin-bottom: 14px;
 }
 
 .pixel-subtitle {
-  font-size: 1.1rem;
+  font-size: 1.4rem;
   color: var(--gold);
   letter-spacing: 2px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   text-shadow: 2px 2px 0 var(--dark-border);
 }
 
 .date-badge {
   display: inline-block;
-  font-size: 0.65rem;
+  font-size: 0.85rem;
   background: var(--bg-deep);
   color: var(--cyan-light);
-  padding: 6px 14px;
+  padding: 8px 16px;
   border: 2px dashed var(--cyan-dark);
   margin-bottom: 24px;
   max-width: 100%;
@@ -366,7 +368,7 @@ body {
 }
 
 .press-tip {
-  font-size: 0.55rem;
+  font-size: 0.8rem;
   color: var(--gray-pixel);
   margin-top: 20px;
   line-height: 1.6;
@@ -609,13 +611,29 @@ body {
   width: 100%;
   height: 12px;
   background: var(--cyan-light);
+  box-shadow: 0 3px 0 0 var(--cyan-primary);
+}
+
+.frosting-drips::after {
+  content: "";
+  position: absolute;
+  top: 15px;
+  left: 8px;
+  width: 8px;
+  height: 8px;
+  background: var(--cyan-light);
   box-shadow: 
-    0 4px 0 0 var(--cyan-primary),
-    12px 8px 0 0 var(--cyan-light),
-    36px 8px 0 0 var(--cyan-light),
-    68px 8px 0 0 var(--cyan-light),
-    94px 8px 0 0 var(--cyan-light),
-    116px 6px 0 0 var(--cyan-light);
+    0 2px 0 0 var(--cyan-primary),
+    18px 0 0 0 var(--cyan-light),
+    18px 2px 0 0 var(--cyan-primary),
+    40px -3px 0 0 var(--cyan-light),
+    40px -1px 0 0 var(--cyan-primary),
+    62px 4px 0 0 var(--cyan-light),
+    62px 6px 0 0 var(--cyan-primary),
+    84px 0 0 0 var(--cyan-light),
+    84px 2px 0 0 var(--cyan-primary),
+    102px -2px 0 0 var(--cyan-light),
+    102px 0 0 0 var(--cyan-primary);
 }
 
 .cherries {
@@ -689,10 +707,10 @@ body {
 }
 
 .cake-prompt {
-  font-size: 0.75rem;
+  font-size: 1.05rem;
   color: var(--cyan-soft);
-  margin-bottom: 16px;
-  line-height: 1.6;
+  margin-bottom: 20px;
+  line-height: 1.7;
 }
 
 /* ==========================================================================
@@ -718,6 +736,136 @@ body {
   align-items: center;
 }
 
+/* ==========================================================================
+   Level Up & EXP Reward Banner
+   ========================================================================== */
+.levelup-banner {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  background: linear-gradient(180deg, #0e2240 0%, #061124 100%);
+  border: 4px solid var(--gold);
+  box-shadow: 
+    0 0 0 4px var(--dark-border),
+    0 0 24px var(--gold-glow),
+    inset 0 0 12px rgba(255, 209, 102, 0.25);
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  width: 100%;
+  max-width: 520px;
+  text-align: center;
+  position: relative;
+  transform: scale(0.9);
+  opacity: 0;
+}
+
+.levelup-banner.show {
+  display: flex;
+  animation: levelUpPopup 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes levelUpPopup {
+  0% { transform: scale(0.7); opacity: 0; }
+  70% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.levelup-header {
+  font-family: var(--title-font);
+  font-size: 0.95rem;
+  color: var(--gold);
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+  text-shadow: 0 0 8px var(--gold-glow);
+}
+
+.lvl-star {
+  display: inline-block;
+  color: #fff;
+  animation: starTwinkle 1s infinite alternate;
+}
+
+.exp-gain-text {
+  font-size: 1.35rem;
+  color: var(--cyan-primary);
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-shadow: 0 0 14px var(--cyan-glow);
+  margin-bottom: 12px;
+  animation: expPulse 1.2s infinite ease-in-out;
+}
+
+@keyframes expPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); color: #ffffff; text-shadow: 0 0 20px var(--cyan-primary); }
+}
+
+.exp-bar-wrapper {
+  width: 100%;
+  max-width: 320px;
+  height: 16px;
+  background: var(--bg-deep);
+  border: 3px solid var(--dark-border);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.exp-bar-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyan-dark), var(--cyan-primary), var(--gold));
+  box-shadow: 0 0 8px var(--cyan-primary);
+}
+
+.levelup-banner.show .exp-bar-fill {
+  animation: expFill 1.8s 0.25s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes expFill {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+.level-transition {
+  font-size: 1.05rem;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.old-lvl {
+  color: var(--gray-pixel);
+  text-decoration: line-through;
+}
+
+.lvl-arrow {
+  color: var(--cyan-primary);
+}
+
+.new-lvl {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.glow-gold {
+  color: var(--gold);
+  text-shadow: 0 0 10px var(--gold-glow);
+}
+
+.level-up-flash {
+  animation: hudLevelFlash 1.5s infinite alternate ease-in-out;
+  border-color: var(--gold) !important;
+}
+
+@keyframes hudLevelFlash {
+  0% { background: var(--bg-deep); color: var(--gold); box-shadow: 0 0 8px var(--gold-glow); }
+  100% { background: var(--cyan-dark); color: #ffffff; box-shadow: 0 0 16px var(--cyan-glow); }
+}
+
 .pixel-envelope-header {
   text-align: center;
   margin-bottom: 20px;
@@ -727,16 +875,16 @@ body {
   display: inline-block;
   background: var(--gold);
   color: var(--bg-deep);
-  font-size: 0.65rem;
-  padding: 6px 12px;
+  font-size: 0.85rem;
+  padding: 8px 16px;
   font-weight: bold;
   border: 2px solid var(--dark-border);
   box-shadow: 0 0 12px var(--gold-glow);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .letter-title {
-  font-size: 1.1rem;
+  font-size: 1.35rem;
 }
 
 .pixel-scroll-card {
@@ -766,13 +914,13 @@ body {
 .card-corner.br { bottom: -2px; right: -2px; }
 
 .letter-body {
-  line-height: 2.0;
-  font-size: 0.85rem;
+  line-height: 2.1;
+  font-size: 1.05rem;
   color: var(--white-pixel);
 }
 
 .letter-greeting {
-  font-size: 0.85rem;
+  font-size: 1.15rem;
   color: var(--cyan-light);
   margin-bottom: 16px;
   border-bottom: 2px dashed var(--cyan-dark);
@@ -784,6 +932,8 @@ body {
   white-space: pre-wrap;
   word-break: break-word;
   color: #e6f7ff;
+  font-size: 1.05rem;
+  line-height: 2.1;
 }
 
 .typewriter-text p {
@@ -797,7 +947,7 @@ body {
   justify-content: flex-end;
   gap: 8px;
   color: var(--pink-accent);
-  font-size: 0.65rem;
+  font-size: 0.85rem;
 }
 
 .sig-heart {
@@ -817,7 +967,7 @@ body {
 .game-footer {
   text-align: center;
   padding: 16px;
-  font-size: 0.5rem;
+  font-size: 0.7rem;
   color: var(--cyan-dark);
   letter-spacing: 1px;
   position: relative;
@@ -829,17 +979,17 @@ body {
    ========================================================================== */
 @media (max-width: 768px) {
   .hud-bar {
-    font-size: 0.55rem;
+    font-size: 0.7rem;
     padding: 8px 10px;
   }
   .hud-badge {
-    padding: 2px 6px;
+    padding: 4px 8px;
   }
   .pixel-title {
-    font-size: 1.1rem;
+    font-size: 1.35rem;
   }
   .pixel-subtitle {
-    font-size: 0.85rem;
+    font-size: 1.15rem;
   }
   .tier-top {
     width: 100px;
@@ -859,12 +1009,19 @@ body {
     width: 11px;
     height: 30px;
   }
-  .letter-body {
-    font-size: 0.65rem;
+  .cake-prompt {
+    font-size: 0.95rem;
+  }
+  .letter-body, .typewriter-text {
+    font-size: 0.95rem;
+    line-height: 2.0;
   }
   .btn-lg {
-    font-size: 0.72rem;
-    padding: 14px 20px;
+    font-size: 0.92rem;
+    padding: 14px 22px;
+  }
+  .exp-gain-text {
+    font-size: 1.15rem;
   }
 }
 
@@ -879,11 +1036,14 @@ body {
     padding: 18px 10px;
   }
   .date-badge {
-    font-size: 0.5rem;
-    padding: 4px 8px;
+    font-size: 0.72rem;
+    padding: 6px 10px;
   }
   .pixel-title {
-    font-size: 0.85rem;
+    font-size: 1.1rem;
+  }
+  .pixel-subtitle {
+    font-size: 0.95rem;
   }
   .bunting-flags {
     gap: 3px;
@@ -891,6 +1051,17 @@ body {
   .flag {
     width: 18px;
     height: 22px;
-    font-size: 0.5rem;
+    font-size: 0.55rem;
+  }
+  .cake-prompt {
+    font-size: 0.88rem;
+  }
+  .letter-body, .typewriter-text {
+    font-size: 0.9rem;
+    line-height: 1.95;
+  }
+  .btn-lg {
+    font-size: 0.85rem;
+    padding: 14px 20px;
   }
 }
