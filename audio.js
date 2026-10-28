@@ -45,7 +45,9 @@ export const HAPPY_BIRTHDAY_NOTES = [
 
 let audioCtx = null;
 let masterGain = null;
-let muted = false;
+let bgmGain = null;
+let sfxGain = null;
+let bgmMuted = false;
 let isPlayingBgm = false;
 let bgmTimer = null;
 let currentBgmNodes = [];
@@ -60,9 +62,21 @@ export function initAudio() {
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
     if (AudioContextClass) {
       audioCtx = new AudioContextClass();
+      
+      // Master destination gain
       masterGain = audioCtx.createGain();
-      masterGain.gain.setValueAtTime(muted ? 0 : 0.25, audioCtx.currentTime);
+      masterGain.gain.setValueAtTime(1.0, audioCtx.currentTime);
       masterGain.connect(audioCtx.destination);
+
+      // Dedicated BGM gain (toggled by BGM on/off button)
+      bgmGain = audioCtx.createGain();
+      bgmGain.gain.setValueAtTime(bgmMuted ? 0 : 0.25, audioCtx.currentTime);
+      bgmGain.connect(masterGain);
+
+      // Dedicated SFX gain (always active for sound effects even if BGM is off)
+      sfxGain = audioCtx.createGain();
+      sfxGain.gain.setValueAtTime(0.85, audioCtx.currentTime);
+      sfxGain.connect(masterGain);
     }
   }
 
@@ -74,28 +88,30 @@ export function initAudio() {
 }
 
 /**
- * Check if sound is muted
+ * Check if BGM sound is muted
  */
-export function isMuted() {
-  return muted;
+export function isBgmMuted() {
+  return bgmMuted;
 }
+export const isMuted = isBgmMuted;
 
 /**
- * Toggle mute state
+ * Toggle BGM mute state (leaves SFX untouched)
  */
-export function toggleMute() {
-  muted = !muted;
-  if (masterGain && audioCtx) {
-    masterGain.gain.setValueAtTime(muted ? 0 : 0.25, audioCtx.currentTime);
+export function toggleBgm() {
+  bgmMuted = !bgmMuted;
+  if (bgmGain && audioCtx) {
+    bgmGain.gain.setValueAtTime(bgmMuted ? 0 : 0.25, audioCtx.currentTime);
   }
-  return muted;
+  return bgmMuted;
 }
+export const toggleMute = toggleBgm;
 
 /**
  * Play a single chiptune tone with square wave and ADSR envelope
  */
 function playTone(freq, startTime, duration) {
-  if (!audioCtx || !masterGain) return null;
+  if (!audioCtx || !bgmGain) return null;
 
   const osc = audioCtx.createOscillator();
   const noteGain = audioCtx.createGain();
@@ -112,7 +128,7 @@ function playTone(freq, startTime, duration) {
   noteGain.gain.exponentialRampToValueAtTime(0.01, startTime + attack + decay);
 
   osc.connect(noteGain);
-  noteGain.connect(masterGain);
+  noteGain.connect(bgmGain);
 
   osc.start(startTime);
   osc.stop(startTime + duration);
@@ -179,10 +195,10 @@ export function stopBgm() {
 
 /**
  * Play retro 8-bit sound effects
- * @param {'coin' | 'blow' | 'firework' | 'chime' | 'click'} type
+ * @param {'coin' | 'blow' | 'firework' | 'chime' | 'levelup' | 'text' | 'pause' | 'error' | 'click'} type
  */
 export function playSfx(type) {
-  if (!initAudio() || !audioCtx || !masterGain || muted) return;
+  if (!initAudio() || !audioCtx || !sfxGain) return;
 
   const now = audioCtx.currentTime;
 
@@ -199,7 +215,7 @@ export function playSfx(type) {
       gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
 
       osc.connect(gain);
-      gain.connect(masterGain);
+      gain.connect(sfxGain);
       osc.start(now);
       osc.stop(now + 0.35);
       break;
@@ -228,7 +244,7 @@ export function playSfx(type) {
 
       noise.connect(filter);
       filter.connect(gain);
-      gain.connect(masterGain);
+      gain.connect(sfxGain);
       noise.start(now);
       break;
     }
@@ -245,7 +261,7 @@ export function playSfx(type) {
       gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
 
       osc.connect(gain);
-      gain.connect(masterGain);
+      gain.connect(sfxGain);
       osc.start(now);
       osc.stop(now + 0.3);
       break;
@@ -264,7 +280,7 @@ export function playSfx(type) {
         gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.09 + 0.25);
 
         osc.connect(gain);
-        gain.connect(masterGain);
+        gain.connect(sfxGain);
         osc.start(now + idx * 0.09);
         osc.stop(now + idx * 0.09 + 0.25);
       });
@@ -285,7 +301,7 @@ export function playSfx(type) {
         gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + noteDur);
 
         osc.connect(gain);
-        gain.connect(masterGain);
+        gain.connect(sfxGain);
         osc.start(now + idx * 0.08);
         osc.stop(now + idx * 0.08 + noteDur);
       });
@@ -304,7 +320,7 @@ export function playSfx(type) {
       gain.gain.exponentialRampToValueAtTime(0.01, now + 0.045);
 
       osc.connect(gain);
-      gain.connect(masterGain);
+      gain.connect(sfxGain);
       osc.start(now);
       osc.stop(now + 0.045);
       break;
@@ -323,10 +339,28 @@ export function playSfx(type) {
         gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.28);
 
         osc.connect(gain);
-        gain.connect(masterGain);
+        gain.connect(sfxGain);
         osc.start(now + idx * 0.09);
         osc.stop(now + idx * 0.09 + 0.28);
       });
+      break;
+    }
+
+    case 'error': {
+      // 8-bit low retro error buzz
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(140, now);
+      osc.frequency.setValueAtTime(100, now + 0.09);
+
+      gain.gain.setValueAtTime(0.35, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+
+      osc.connect(gain);
+      gain.connect(sfxGain);
+      osc.start(now);
+      osc.stop(now + 0.2);
       break;
     }
 
@@ -342,7 +376,7 @@ export function playSfx(type) {
       gain.gain.exponentialRampToValueAtTime(0.01, now + 0.06);
 
       osc.connect(gain);
-      gain.connect(masterGain);
+      gain.connect(sfxGain);
       osc.start(now);
       osc.stop(now + 0.06);
       break;

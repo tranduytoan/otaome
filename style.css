@@ -257,6 +257,101 @@ body {
 }
 
 /* ==========================================================================
+   Screen 0: Player Login Screen
+   ========================================================================== */
+.login-card {
+  max-width: 520px;
+}
+
+.pixel-key-icon {
+  font-size: 2rem;
+  margin-bottom: 8px;
+  animation: keyFloat 1.8s infinite alternate ease-in-out;
+}
+
+@keyframes keyFloat {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-8px); filter: drop-shadow(0 0 10px var(--gold-glow)); }
+}
+
+.login-sub {
+  font-size: 0.75rem;
+  color: var(--cyan-soft);
+  letter-spacing: 2px;
+  margin-bottom: 24px;
+}
+
+.pixel-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  text-align: left;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pixel-label {
+  font-size: 0.75rem;
+  color: var(--cyan-light);
+  letter-spacing: 1px;
+}
+
+.pixel-input {
+  font-family: var(--pixel-font);
+  font-size: 1rem;
+  padding: 12px 14px;
+  background-color: var(--bg-deep);
+  color: #ffffff;
+  border: 3px solid var(--cyan-dark);
+  box-shadow: 
+    inset 2px 2px 0 0 #000,
+    0 0 0 2px var(--dark-border);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.pixel-input:focus {
+  border-color: var(--cyan-primary);
+  box-shadow: 
+    inset 2px 2px 0 0 #000,
+    0 0 10px var(--cyan-glow),
+    0 0 0 2px var(--dark-border);
+}
+
+.login-error-text {
+  min-height: 22px;
+  font-size: 0.8rem;
+  color: #ff4757;
+  text-align: center;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-shadow: 0 0 8px rgba(255, 71, 87, 0.6);
+}
+
+.error-shake {
+  animation: shakeError 0.35s ease-in-out;
+}
+
+@keyframes shakeError {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  50% { transform: translateX(8px); }
+  75% { transform: translateX(-5px); }
+}
+
+.login-hint {
+  font-size: 0.75rem;
+  color: var(--gray-pixel);
+  text-align: center;
+  margin-top: 10px;
+  line-height: 1.6;
+}
+
+/* ==========================================================================
    Screen 1: Start Screen
    ========================================================================== */
 .title-card {

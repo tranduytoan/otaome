@@ -23,6 +23,75 @@ export const BIRTHDAY_CONFIG = {
   ]
 };
 
+// Player authentication constants
+export const AUTH_CREDENTIALS = {
+  username: 'thuthuy',
+  password: 'xinhdep',
+  sessionDurationMs: 60 * 60 * 1000 // 1 hour in ms
+};
+
+export const AUTH_STORAGE_KEY = 'hpbd_player_auth';
+
+/**
+ * Check if active session exists and is within 1-hour window
+ */
+export function checkAuthSession() {
+  if (typeof localStorage === 'undefined') return true;
+  try {
+    const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (!raw) return false;
+    const session = JSON.parse(raw);
+    if (!session || !session.timestamp) return false;
+    const now = Date.now();
+    const elapsed = now - session.timestamp;
+    if (elapsed >= 0 && elapsed < AUTH_CREDENTIALS.sessionDurationMs) {
+      return true;
+    }
+    // Expired: clean up
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    return false;
+  } catch (_) {
+    return false;
+  }
+}
+
+/**
+ * Attempt player login
+ */
+export function login(username, password) {
+  const userValid = username && username.trim().toLowerCase() === AUTH_CREDENTIALS.username.toLowerCase();
+  const passValid = password && password.trim().toLowerCase() === AUTH_CREDENTIALS.password.toLowerCase();
+
+  if (userValid && passValid) {
+    if (typeof localStorage !== 'undefined') {
+      try {
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
+          username: AUTH_CREDENTIALS.username,
+          timestamp: Date.now()
+        }));
+      } catch (_) {}
+    }
+    return { success: true };
+  }
+
+  return {
+    success: false,
+    error: 'Sai Username hoặc Password rồi! Thử lại nhé 🎮'
+  };
+}
+
+/**
+ * Player logout
+ */
+export function logout() {
+  if (typeof localStorage !== 'undefined') {
+    try {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+    } catch (_) {}
+  }
+  switchScreen('screen-login');
+}
+
 let currentScreen = 'screen-start';
 let isBlowing = false;
 let typewriterTimeouts = [];
@@ -342,6 +411,51 @@ export function initApp() {
   const canvas = document.getElementById('fireworks-canvas');
   if (canvas) {
     initFireworks(canvas);
+  }
+
+  // Check 1-hour session on startup
+  if (!checkAuthSession()) {
+    switchScreen('screen-login');
+  } else {
+    switchScreen('screen-start');
+  }
+
+  // Player Login Form handling
+  const loginForm = document.getElementById('login-form');
+  const inputUsername = document.getElementById('login-username');
+  const inputPassword = document.getElementById('login-password');
+  const loginError = document.getElementById('login-error');
+  const btnLogout = document.getElementById('btn-logout');
+
+  if (loginForm) {
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const user = inputUsername ? inputUsername.value : '';
+      const pass = inputPassword ? inputPassword.value : '';
+      const res = login(user, pass);
+      if (res.success) {
+        initAudio();
+        playSfx('coin');
+        if (loginError) loginError.textContent = '';
+        if (inputPassword) inputPassword.value = '';
+        switchScreen('screen-start');
+      } else {
+        initAudio();
+        playSfx('error');
+        if (loginError) {
+          loginError.textContent = res.error;
+          loginError.classList.add('error-shake');
+          setTimeout(() => loginError.classList.remove('error-shake'), 400);
+        }
+      }
+    });
+  }
+
+  if (btnLogout) {
+    btnLogout.addEventListener('click', () => {
+      playSfx('click');
+      logout();
+    });
   }
 
   // Start Screen Button

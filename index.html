@@ -25,14 +25,48 @@
     <div class="hud-right">
       <button id="btn-mute" class="retro-btn btn-sm" aria-label="Bật tắt âm thanh">♪ BGM: ON</button>
       <button id="btn-crt" class="retro-btn btn-sm" aria-label="Bật tắt hiệu ứng CRT">CRT: ON</button>
+      <button id="btn-logout" class="retro-btn btn-sm" aria-label="Đăng xuất">LOGOUT</button>
     </div>
   </header>
 
   <!-- Main Game Stage Container -->
   <main id="game-container">
+
+    <!-- Screen 0: Player Login Screen -->
+    <section id="screen-login" class="game-screen active">
+      <div class="pixel-box login-card">
+        <div class="login-header">
+          <div class="pixel-key-icon">🔑</div>
+          <h1 class="pixel-title glow-cyan">PLAYER LOGIN</h1>
+          <p class="login-sub">IDENTIFY PLAYER TO ENTER</p>
+        </div>
+
+        <form id="login-form" class="pixel-form" autocomplete="off">
+          <div class="input-group">
+            <label for="login-username" class="pixel-label">PLAYER USERNAME:</label>
+            <input type="text" id="login-username" class="pixel-input" placeholder="thuthuy" required autofocus>
+          </div>
+
+          <div class="input-group">
+            <label for="login-password" class="pixel-label">ACCESS KEY (PASSWORD):</label>
+            <input type="password" id="login-password" class="pixel-input" placeholder="xinhdep" required>
+          </div>
+
+          <div id="login-error" class="login-error-text"></div>
+
+          <button type="submit" id="btn-login" class="retro-btn btn-lg btn-glow">
+            ▶ ENTER GAME
+          </button>
+
+          <p class="login-hint">
+            💡 Gợi ý: Tên bạn & một tính từ mô tả bạn 😉
+          </p>
+        </form>
+      </div>
+    </section>
     
     <!-- Screen 1: Start Screen -->
-    <section id="screen-start" class="game-screen active">
+    <section id="screen-start" class="game-screen">
       <div class="pixel-box title-card">
         <div class="pixel-stars">
           <span class="star s1">✦</span>
