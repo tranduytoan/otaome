@@ -532,7 +532,7 @@ body {
     inset 0 0 10px rgba(0, 245, 255, 0.2);
   position: relative;
   overflow: hidden;
-  margin-bottom: 24px;
+  margin: 0 auto;
 }
 
 .window-moon {
@@ -635,19 +635,23 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 36px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   position: relative;
   width: 100%;
 }
 
 .pixel-light-switch {
+  position: absolute;
+  right: 28px;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
   cursor: pointer;
   transition: transform 0.1s ease, filter 0.2s ease;
   user-select: none;
+  z-index: 10;
 }
 
 .pixel-light-switch.locked {
@@ -872,6 +876,13 @@ body {
 
 .pixel-gift-box.opening .gift-hint-text {
   opacity: 0;
+}
+
+.cake-display-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
 
 .cake-display-wrapper.revealed {
@@ -1152,9 +1163,12 @@ body {
 /* Candles & Flames */
 .candles-wrapper {
   display: flex;
-  gap: 36px;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 28px;
   margin-bottom: -4px;
   z-index: 5;
+  width: 130px;
 }
 
 .pixel-candle {
@@ -1731,7 +1745,8 @@ body {
     width: 190px;
   }
   .candles-wrapper {
-    gap: 22px;
+    gap: 18px;
+    width: 100px;
   }
   .candle-body {
     width: 11px;
@@ -1802,8 +1817,8 @@ body {
     font-size: 0.78rem;
     text-align: center;
   }
-  .room-wall-fixtures {
-    gap: 18px;
+  .pixel-light-switch {
+    right: 10px;
   }
   .gift-lid-cap {
     width: 136px;
