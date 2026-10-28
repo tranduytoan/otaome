@@ -20,3 +20,24 @@ test('fireworks.js handles mock canvas and non-browser environment safely', () =
     fw.stopFireworks();
   });
 });
+
+test('fireworks.js stopFireworks clears the canvas completely with clearRect', () => {
+  let cleared = false;
+  const mockCtx = {
+    clearRect: () => { cleared = true; },
+    save: () => {},
+    restore: () => {},
+    fillRect: () => {},
+  };
+  const mockCanvas = {
+    getContext: () => mockCtx,
+    width: 800,
+    height: 600,
+    style: {}
+  };
+
+  fw.initFireworks(mockCanvas);
+  fw.startFireworks();
+  fw.stopFireworks();
+  assert.equal(cleared, true, 'stopFireworks must call ctx.clearRect to clear any paused or frozen particles');
+});

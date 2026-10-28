@@ -81,18 +81,20 @@ function resizeCanvas() {
  * Initialize Fireworks engine with canvas element
  */
 export function initFireworks(canvasElement) {
-  if (!canvasElement || typeof window === 'undefined') {
+  if (!canvasElement) {
     canvas = null;
     ctx = null;
     return;
   }
 
   canvas = canvasElement;
-  ctx = canvas.getContext('2d');
+  ctx = canvas.getContext ? canvas.getContext('2d') : null;
   resizeCanvas();
 
-  window.removeEventListener('resize', resizeCanvas);
-  window.addEventListener('resize', resizeCanvas);
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('resize', resizeCanvas);
+    window.addEventListener('resize', resizeCanvas);
+  }
 }
 
 /**
@@ -130,9 +132,15 @@ function loop() {
   }
 
   if (isRunning || particles.length > 0) {
-    animFrameId = requestAnimationFrame(loop);
+    if (typeof requestAnimationFrame !== 'undefined') {
+      animFrameId = requestAnimationFrame(loop);
+    }
   } else {
     animFrameId = null;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (canvas && canvas.style) {
+      canvas.style.display = 'none';
+    }
   }
 }
 
@@ -141,7 +149,11 @@ function loop() {
  * @param {number} [durationMs] Optional duration in milliseconds
  */
 export function startFireworks(durationMs) {
-  if (!canvas || typeof window === 'undefined') return;
+  if (!canvas) return;
+
+  if (canvas.style) {
+    canvas.style.display = 'block';
+  }
 
   // Clear previous stop timeout if restarting early
   if (stopTimeoutId) {
@@ -150,7 +162,7 @@ export function startFireworks(durationMs) {
   }
 
   isRunning = true;
-  if (!animFrameId) {
+  if (!animFrameId && typeof requestAnimationFrame !== 'undefined') {
     loop();
   }
 
@@ -167,17 +179,21 @@ export function startFireworks(durationMs) {
     }
   }, 600);
 
-  // Auto stop if duration provided
+  // After durationMs, stop spawning new bursts and let remaining particles fade out
   if (durationMs && durationMs > 0) {
     stopTimeoutId = setTimeout(() => {
-      stopFireworks();
+      isRunning = false;
+      if (autoBurstInterval) {
+        clearInterval(autoBurstInterval);
+        autoBurstInterval = null;
+      }
       stopTimeoutId = null;
     }, durationMs);
   }
 }
 
 /**
- * Stop fireworks spawning and clear particles
+ * Stop fireworks spawning, clear canvas and hide canvas element
  */
 export function stopFireworks() {
   isRunning = false;
@@ -194,4 +210,12 @@ export function stopFireworks() {
     animFrameId = null;
   }
   particles = [];
+  if (ctx && canvas) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  if (canvas && canvas.style) {
+    canvas.style.display = 'none';
+  }
 }
+
+export const clearFireworks = stopFireworks;
