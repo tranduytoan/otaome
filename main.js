@@ -80,18 +80,6 @@ export function login(username, password) {
   };
 }
 
-/**
- * Player logout
- */
-export function logout() {
-  if (typeof localStorage !== 'undefined') {
-    try {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
-    } catch (_) {}
-  }
-  switchScreen('screen-login');
-}
-
 let currentScreen = 'screen-start';
 let isBlowing = false;
 let typewriterTimeouts = [];
@@ -107,7 +95,7 @@ export function getCurrentScreen() {
 
 /**
  * Switch game screen with smooth transition
- * @param {'screen-start' | 'screen-cake' | 'screen-letter'} targetScreenId
+ * @param {'screen-login' | 'screen-start' | 'screen-cake' | 'screen-letter'} targetScreenId
  */
 export function switchScreen(targetScreenId) {
   currentScreen = targetScreenId;
@@ -121,6 +109,19 @@ export function switchScreen(targetScreenId) {
       screen.classList.remove('active');
     }
   });
+
+  // Manage BGM per screen: ONLY play on cake and letter screens!
+  if (targetScreenId === 'screen-cake' || targetScreenId === 'screen-letter') {
+    playBgm();
+  } else {
+    stopBgm();
+  }
+
+  // Update HUD controls: hide logout button on login screen
+  const btnLogout = document.getElementById('btn-logout');
+  if (btnLogout) {
+    btnLogout.style.display = (targetScreenId === 'screen-login') ? 'none' : 'inline-block';
+  }
 }
 
 /**
@@ -172,6 +173,7 @@ export function typeCakePrompt() {
   const speed = 38;
 
   function typeChar() {
+    if (currentScreen !== 'screen-cake') return;
     if (charIndex < characters.length) {
       const char = characters[charIndex];
       charIndex++;
@@ -183,7 +185,7 @@ export function typeCakePrompt() {
       cakePromptTimeouts.push(t);
     } else {
       // Completed typing: enable blow button with sound feedback
-      if (btnBlow && !isBlowing) {
+      if (btnBlow && !isBlowing && currentScreen === 'screen-cake') {
         btnBlow.disabled = false;
         btnBlow.style.opacity = '1';
         btnBlow.style.cursor = 'pointer';
@@ -211,6 +213,7 @@ export function runTypewriter() {
   const paragraphPause = 750; // ms pause between paragraphs
 
   function typeParagraph(idx) {
+    if (currentScreen !== 'screen-letter') return;
     if (idx >= paragraphs.length) {
       return;
     }
@@ -220,6 +223,7 @@ export function runTypewriter() {
     let charIndex = 0;
 
     function typeChar() {
+      if (currentScreen !== 'screen-letter') return;
       if (charIndex < characters.length) {
         const char = characters[charIndex];
         charIndex++;
@@ -237,14 +241,18 @@ export function runTypewriter() {
       } else {
         // Finished current paragraph
         if (idx < paragraphs.length - 1) {
-          playSfx('pause');
-          const t = setTimeout(() => {
-            typeParagraph(idx + 1);
-          }, paragraphPause);
-          typewriterTimeouts.push(t);
+          if (currentScreen === 'screen-letter') {
+            playSfx('pause');
+            const t = setTimeout(() => {
+              typeParagraph(idx + 1);
+            }, paragraphPause);
+            typewriterTimeouts.push(t);
+          }
         } else {
           // All paragraphs completed
-          playSfx('chime');
+          if (currentScreen === 'screen-letter') {
+            playSfx('chime');
+          }
         }
       }
     }
@@ -291,10 +299,12 @@ export function blowCandles() {
 
   // Transition to Letter screen after celebration pause
   const t = setTimeout(() => {
-    switchScreen('screen-letter');
-    triggerLevelUp(() => {
-      runTypewriter();
-    });
+    if (currentScreen === 'screen-cake') {
+      switchScreen('screen-letter');
+      triggerLevelUp(() => {
+        runTypewriter();
+      });
+    }
   }, 2400);
   typewriterTimeouts.push(t);
 }
@@ -318,8 +328,10 @@ export function triggerLevelUp(onComplete) {
   const roller = document.getElementById('level-roller');
   if (roller) {
     const tRoller = setTimeout(() => {
-      roller.classList.add('rolled');
-      playSfx('coin');
+      if (currentScreen === 'screen-letter') {
+        roller.classList.add('rolled');
+        playSfx('coin');
+      }
     }, 1200);
     levelUpTimeouts.push(tRoller);
   }
@@ -328,14 +340,16 @@ export function triggerLevelUp(onComplete) {
   if (hudLevel) {
     hudLevel.classList.add('level-up-flash');
     const tHud = setTimeout(() => {
-      hudLevel.textContent = `LEVEL: ${BIRTHDAY_CONFIG.level}`;
+      if (currentScreen === 'screen-letter') {
+        hudLevel.textContent = `LEVEL: ${BIRTHDAY_CONFIG.level}`;
+      }
     }, 1200);
     levelUpTimeouts.push(tHud);
   }
 
   // Wait until level up banner animation sequence finishes before callback
   const tDone = setTimeout(() => {
-    if (typeof onComplete === 'function') {
+    if (currentScreen === 'screen-letter' && typeof onComplete === 'function') {
       onComplete();
     }
   }, 2500);
@@ -343,14 +357,15 @@ export function triggerLevelUp(onComplete) {
 }
 
 /**
- * Reset game to initial start screen
+ * Stop and clean up all ongoing sounds, fireworks, and animation timers
  */
-export function resetGame() {
+export function stopAllEffects() {
   isBlowing = false;
   clearTypewriter();
   clearCakePrompt();
   clearLevelUp();
   stopFireworks();
+  stopBgm();
 
   if (typeof document === 'undefined') return;
 
@@ -378,7 +393,7 @@ export function resetGame() {
   // Clear letter
   const container = document.getElementById('letter-content');
   if (container) {
-    container.innerHTML = '';
+    container.textContent = '';
   }
 
   // Reset Level Up banner, vertical roller & HUD
@@ -397,7 +412,26 @@ export function resetGame() {
     hudLevel.textContent = `LEVEL: ${BIRTHDAY_CONFIG.baseLevel}`;
     hudLevel.classList.remove('level-up-flash');
   }
+}
 
+/**
+ * Player logout - halts all sound/effects and returns to login screen
+ */
+export function logout() {
+  if (typeof localStorage !== 'undefined') {
+    try {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+    } catch (_) {}
+  }
+  stopAllEffects();
+  switchScreen('screen-login');
+}
+
+/**
+ * Reset game to initial start screen
+ */
+export function resetGame() {
+  stopAllEffects();
   switchScreen('screen-start');
 }
 
@@ -464,7 +498,6 @@ export function initApp() {
     btnStart.addEventListener('click', () => {
       initAudio();
       playSfx('coin');
-      playBgm();
       switchScreen('screen-cake');
       typeCakePrompt();
     });

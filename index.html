@@ -19,7 +19,7 @@
   <!-- Top Retro HUD / Controls -->
   <header class="hud-bar">
     <div class="hud-left">
-      <span class="hud-badge">PLAYER 1: THU THÙY</span>
+      <span class="hud-badge">PLAYER: THU THÙY</span>
       <span id="hud-level" class="hud-badge">LEVEL: 21</span>
     </div>
     <div class="hud-right">
@@ -36,7 +36,6 @@
     <section id="screen-login" class="game-screen active">
       <div class="pixel-box login-card">
         <div class="login-header">
-          <div class="pixel-key-icon">🔑</div>
           <h1 class="pixel-title glow-cyan">PLAYER LOGIN</h1>
           <p class="login-sub">IDENTIFY PLAYER TO ENTER</p>
         </div>
@@ -44,12 +43,12 @@
         <form id="login-form" class="pixel-form" autocomplete="off">
           <div class="input-group">
             <label for="login-username" class="pixel-label">PLAYER USERNAME:</label>
-            <input type="text" id="login-username" class="pixel-input" placeholder="thuthuy" required autofocus>
+            <input type="text" id="login-username" class="pixel-input" placeholder="Enter username" required autofocus>
           </div>
 
           <div class="input-group">
-            <label for="login-password" class="pixel-label">ACCESS KEY (PASSWORD):</label>
-            <input type="password" id="login-password" class="pixel-input" placeholder="xinhdep" required>
+            <label for="login-password" class="pixel-label">PASSWORD:</label>
+            <input type="password" id="login-password" class="pixel-input" placeholder="Enter password" required>
           </div>
 
           <div id="login-error" class="login-error-text"></div>
@@ -59,7 +58,8 @@
           </button>
 
           <p class="login-hint">
-            💡 Gợi ý: Tên bạn & một tính từ mô tả bạn 😉
+            💡 Don't know what's your account?
+            <span style="display: block;">A hint will be delivered to you this evening.</span>
           </p>
         </form>
       </div>
@@ -87,7 +87,7 @@
           <span class="blink">▶</span> PRESS START
         </button>
 
-        <p class="press-tip">Chạm hoặc nhấn SPACE để bắt đầu hành trình</p>
+
       </div>
     </section>
 

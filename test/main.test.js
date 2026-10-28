@@ -20,6 +20,7 @@ test('main.js exports state controller methods', () => {
   assert.equal(typeof mainModule.typeCakePrompt, 'function');
   assert.equal(typeof mainModule.clearCakePrompt, 'function');
   assert.equal(typeof mainModule.clearLevelUp, 'function');
+  assert.equal(typeof mainModule.stopAllEffects, 'function');
 });
 
 test('main.js safely initializes in mock / non-DOM environment', () => {
