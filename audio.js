@@ -310,6 +310,26 @@ export function playSfx(type) {
       break;
     }
 
+    case 'pause': {
+      // Gentle paragraph transition chime / sparkle (E5 -> B5)
+      const notes = [659.25, 987.77];
+      notes.forEach((freq, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.09);
+
+        gain.gain.setValueAtTime(0.22, now + idx * 0.09);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.28);
+
+        osc.connect(gain);
+        gain.connect(masterGain);
+        osc.start(now + idx * 0.09);
+        osc.stop(now + idx * 0.09 + 0.28);
+      });
+      break;
+    }
+
     case 'click':
     default: {
       // Short blip

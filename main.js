@@ -15,17 +15,18 @@ export const BIRTHDAY_CONFIG = {
   expGained: 1505,
   themeColor: '#00f5ff',
   wishes: [
-    "Chúc mừng sinh nhật lần thứ 22 của Thu Thùy! ✨🎮",
+    "Chúc mừng sinh nhật lần thứ 22 của Thu Thùy!",
     "Bước sang tuổi mới, chúc bạn luôn giữ nụ cười rạng rỡ, ngập tràn năng lượng tích cực và luôn hạnh phúc.",
     "Chúc mọi dự định và ước mơ của bạn trong năm nay đều sẽ nở hoa rực rỡ như những hạt pháo hoa pixel này!",
     "Mong rằng mỗi ngày của bạn đều là một màn chơi thật vui vẻ, bình yên và ngập tràn may mắn. 💙",
-    "LEVEL UP SUCCESSFUL! Happy Birthday, Thu Thùy! 🎂✨"
+    "LEVEL UP SUCCESSFUL! Happy Birthday, Thu Thùy!"
   ]
 };
 
 let currentScreen = 'screen-start';
 let isBlowing = false;
 let typewriterTimeouts = [];
+let cakePromptTimeouts = [];
 
 /**
  * Get current active screen ID
@@ -55,15 +56,71 @@ export function switchScreen(targetScreenId) {
 /**
  * Clear all typewriter timers to prevent overlapping
  */
-function clearTypewriter() {
+export function clearTypewriter() {
   typewriterTimeouts.forEach(t => clearTimeout(t));
   typewriterTimeouts = [];
 }
 
 /**
- * Run 8-bit typewriter effect for the birthday letter
+ * Clear cake prompt typewriter timers
  */
-function runTypewriter() {
+export function clearCakePrompt() {
+  cakePromptTimeouts.forEach(t => clearTimeout(t));
+  cakePromptTimeouts = [];
+}
+
+/**
+ * Typewriter effect for the cake prompt text; disables blow button until finished
+ */
+export function typeCakePrompt() {
+  if (typeof document === 'undefined') return;
+  const promptEl = document.getElementById('cake-prompt');
+  const btnBlow = document.getElementById('btn-blow');
+  if (!promptEl) return;
+
+  clearCakePrompt();
+  promptEl.textContent = '';
+  promptEl.style.color = 'var(--cyan-soft)';
+
+  if (btnBlow) {
+    btnBlow.disabled = true;
+    btnBlow.style.opacity = '0.5';
+    btnBlow.style.cursor = 'not-allowed';
+  }
+
+  const promptText = 'Hãy ước một điều ước thật đẹp và thổi nến nhé!';
+  const characters = Array.from(promptText);
+  let charIndex = 0;
+  const speed = 38;
+
+  function typeChar() {
+    if (charIndex < characters.length) {
+      const char = characters[charIndex];
+      charIndex++;
+      promptEl.textContent = characters.slice(0, charIndex).join('');
+      if (char !== ' ' && char !== '\n') {
+        playSfx('text');
+      }
+      const t = setTimeout(typeChar, speed);
+      cakePromptTimeouts.push(t);
+    } else {
+      // Completed typing: enable blow button with sound feedback
+      if (btnBlow && !isBlowing) {
+        btnBlow.disabled = false;
+        btnBlow.style.opacity = '1';
+        btnBlow.style.cursor = 'pointer';
+        playSfx('click');
+      }
+    }
+  }
+
+  typeChar();
+}
+
+/**
+ * Run 8-bit typewriter effect for the birthday letter with paragraph pauses & SFX
+ */
+export function runTypewriter() {
   if (typeof document === 'undefined') return;
   const container = document.getElementById('letter-content');
   if (!container) return;
@@ -71,26 +128,53 @@ function runTypewriter() {
   clearTypewriter();
   container.textContent = '';
 
-  const fullText = BIRTHDAY_CONFIG.wishes.join('\n\n');
-  const characters = Array.from(fullText);
-  let charIndex = 0;
-  const speed = 35; // ms per character
+  const paragraphs = BIRTHDAY_CONFIG.wishes;
+  const charSpeed = 35; // ms per character
+  const paragraphPause = 750; // ms pause between paragraphs
 
-  function typeChar() {
-    if (charIndex < characters.length) {
-      const char = characters[charIndex];
-      charIndex++;
-      container.textContent = characters.slice(0, charIndex).join('');
-      // Play retro RPG blip for visible letters (skip whitespace and newlines)
-      if (char !== ' ' && char !== '\n') {
-        playSfx('text');
-      }
-      const timeout = setTimeout(typeChar, speed);
-      typewriterTimeouts.push(timeout);
+  function typeParagraph(idx) {
+    if (idx >= paragraphs.length) {
+      return;
     }
+
+    const currentParagraph = paragraphs[idx];
+    const characters = Array.from(currentParagraph);
+    let charIndex = 0;
+
+    function typeChar() {
+      if (charIndex < characters.length) {
+        const char = characters[charIndex];
+        charIndex++;
+
+        const previousText = paragraphs.slice(0, idx).join('\n\n') + (idx > 0 ? '\n\n' : '');
+        const currentTyped = characters.slice(0, charIndex).join('');
+        container.textContent = previousText + currentTyped;
+
+        if (char !== ' ' && char !== '\n') {
+          playSfx('text');
+        }
+
+        const t = setTimeout(typeChar, charSpeed);
+        typewriterTimeouts.push(t);
+      } else {
+        // Finished current paragraph
+        if (idx < paragraphs.length - 1) {
+          playSfx('pause');
+          const t = setTimeout(() => {
+            typeParagraph(idx + 1);
+          }, paragraphPause);
+          typewriterTimeouts.push(t);
+        } else {
+          // All paragraphs completed
+          playSfx('chime');
+        }
+      }
+    }
+
+    typeChar();
   }
 
-  typeChar();
+  typeParagraph(0);
 }
 
 /**
@@ -173,6 +257,7 @@ export function triggerLevelUp() {
 export function resetGame() {
   isBlowing = false;
   clearTypewriter();
+  clearCakePrompt();
   stopFireworks();
 
   if (typeof document === 'undefined') return;
@@ -186,9 +271,9 @@ export function resetGame() {
   // Reset blow button
   const btnBlow = document.getElementById('btn-blow');
   if (btnBlow) {
-    btnBlow.disabled = false;
-    btnBlow.style.opacity = '1';
-    btnBlow.style.cursor = 'pointer';
+    btnBlow.disabled = true;
+    btnBlow.style.opacity = '0.5';
+    btnBlow.style.cursor = 'not-allowed';
   }
 
   // Reset prompt text
@@ -244,6 +329,7 @@ export function initApp() {
       playSfx('coin');
       playBgm();
       switchScreen('screen-cake');
+      typeCakePrompt();
     });
   }
 
@@ -295,7 +381,7 @@ export function initApp() {
       if (currentScreen === 'screen-start' && btnStart) {
         e.preventDefault();
         btnStart.click();
-      } else if (currentScreen === 'screen-cake' && btnBlow && !isBlowing) {
+      } else if (currentScreen === 'screen-cake' && btnBlow && !isBlowing && !btnBlow.disabled) {
         e.preventDefault();
         btnBlow.click();
       }
