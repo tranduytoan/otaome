@@ -1,0 +1,3 @@
+- Thu Thùy
+- 29/10/2004 gmt+7
+- màu yêu thích: cyan
