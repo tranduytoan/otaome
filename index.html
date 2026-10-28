@@ -93,13 +93,9 @@
 
     <!-- Screen 2: Cake & Candle Blowing Screen -->
     <section id="screen-cake" class="game-screen">
-      <!-- Quest Tracker Objective HUD -->
-      <div id="quest-tracker" class="quest-tracker-box">
-        <div class="quest-tracker-badge">
-          <span class="quest-icon blink">⚔️</span>
-          <span class="quest-phase-tag">QUEST <span id="quest-number">1/4</span></span>
-        </div>
-        <div id="quest-text" class="quest-text">Tìm cách mở hộp quà 🎁</div>
+      <!-- Hidden compatibility container for quest tracker state -->
+      <div id="quest-tracker" class="quest-tracker-box" style="display: none;">
+        <span id="quest-number"></span>
       </div>
 
       <div id="pixel-room" class="pixel-room">
@@ -139,6 +135,11 @@
               <span class="switch-label">LIGHT</span>
             </div>
           </div>
+        </div>
+
+        <!-- Toast messages positioned between window and cake -->
+        <div class="quest-toast-placeholder">
+          <div id="quest-toast" class="quest-toast"></div>
         </div>
 
         <!-- Pixel Cake Table Area -->
@@ -213,9 +214,9 @@
           </div>
 
           <div class="cake-action-box">
-            <!-- Reserved placeholder for toast messages to prevent room size jitter -->
-            <div class="quest-toast-placeholder">
-              <div id="quest-toast" class="quest-toast"></div>
+            <!-- RPG / Novel Game Dialogue Box under the cake -->
+            <div class="rpg-dialogue-box">
+              <div id="quest-text" class="rpg-dialogue-text"></div>
             </div>
 
             <!-- Legacy fallback cake-prompt container for integration tests -->

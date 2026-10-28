@@ -29,7 +29,7 @@ test('Quest sequence: starts at Quest 1 (open gift box)', () => {
   mainModule.resetQuests();
   const q1 = mainModule.getCurrentQuest();
   assert.equal(q1.id, 1);
-  assert.match(q1.title, /hộp quà/i);
+  assert.match(q1.title, /quà/i);
 });
 
 test('Quest 1 -> Quest 2: opening gift box unlocks light switch and advances quest', () => {
@@ -38,7 +38,7 @@ test('Quest 1 -> Quest 2: opening gift box unlocks light switch and advances que
   assert.equal(res.success, true);
   const q2 = mainModule.getCurrentQuest();
   assert.equal(q2.id, 2);
-  assert.match(q2.title, /tắt đèn/i);
+  assert.match(q2.title, /đèn/i);
 });
 
 test('Quest 2 -> Quest 3: turning off lights triggers falling letter and advances quest', () => {
@@ -48,7 +48,7 @@ test('Quest 2 -> Quest 3: turning off lights triggers falling letter and advance
   assert.equal(resLight.lightsOff, true);
   const q3 = mainModule.getCurrentQuest();
   assert.equal(q3.id, 3);
-  assert.match(q3.title, /điều ước/i);
+  assert.match(q3.title, /thư/i);
 });
 
 test('Quest 3 -> Quest 4: submitting wish advances to candle blowing quest', () => {

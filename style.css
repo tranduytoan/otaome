@@ -1127,14 +1127,14 @@ body {
   line-height: 1.5;
 }
 
-/* Floating Quest Toast & Reserved Space Placeholder */
+/* Floating Quest Toast & Reserved Space Placeholder (Between Window and Cake) */
 .quest-toast-placeholder {
-  min-height: 48px;
+  min-height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  margin-bottom: 14px;
+  margin: 0 auto 16px auto;
   box-sizing: border-box;
 }
 
@@ -1167,6 +1167,44 @@ body {
 .quest-toast.toast-error {
   color: #ff6b81;
   text-shadow: 0 0 10px rgba(255, 107, 129, 0.7);
+}
+
+/* RPG Maker / Novel Game Dialogue Box under Cake */
+.rpg-dialogue-box {
+  width: 100%;
+  max-width: 580px;
+  background: rgba(6, 14, 34, 0.88);
+  border: 3px solid var(--cyan-dark);
+  box-shadow: 
+    0 0 0 2px var(--dark-border),
+    0 0 16px rgba(0, 245, 255, 0.2),
+    inset 0 0 10px rgba(0, 59, 70, 0.5);
+  padding: 14px 20px;
+  margin: 0 auto 16px auto;
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.pixel-room.dark-mode .rpg-dialogue-box {
+  background: rgba(2, 6, 16, 0.95);
+  border-color: #007799;
+  box-shadow: 
+    0 0 0 2px var(--dark-border),
+    0 0 20px rgba(0, 245, 255, 0.25);
+}
+
+.rpg-dialogue-text {
+  font-size: 1.05rem;
+  color: #ffffff;
+  line-height: 1.6;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 6px var(--cyan-glow);
+  word-break: break-word;
 }
 
 .pixel-cake-container {
@@ -1861,5 +1899,12 @@ body {
   .quest-toast-placeholder {
     min-height: 44px;
     margin-bottom: 10px;
+  }
+  .rpg-dialogue-box {
+    padding: 10px 14px;
+    min-height: 50px;
+  }
+  .rpg-dialogue-text {
+    font-size: 0.9rem;
   }
 }

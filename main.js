@@ -88,11 +88,11 @@ let levelUpTimeouts = [];
 
 // Quest Definitions
 export const QUESTS = [
-  { id: 1, key: 'gift', title: 'Tìm cách mở hộp quà 🎁' },
-  { id: 2, key: 'lights', title: 'Tìm cách tắt đèn phòng 💡' },
-  { id: 3, key: 'wish', title: 'Ước một điều ước thật đẹp ✉️' },
-  { id: 4, key: 'candles', title: 'Tìm cách thổi tắt nến trong phòng tối 🕯️' },
-  { id: 5, key: 'complete', title: 'Tất cả nhiệm vụ đã hoàn thành! 🏆' }
+  { id: 1, key: 'gift', title: 'Hình như có quà cho bạn!??' },
+  { id: 2, key: 'lights', title: 'Đèn phòng đang làm lu mờ những ánh nến...?' },
+  { id: 3, key: 'wish', title: 'Một lá thư vừa rơi xuống cạnh bánh kem!??' },
+  { id: 4, key: 'candles', title: 'Đã đến lúc thổi nến rồi!!!' },
+  { id: 5, key: 'complete', title: 'Tất cả nhiệm vụ đã hoàn thành!' }
 ];
 
 let currentQuestIndex = 0;
@@ -562,11 +562,6 @@ export function blowIndividualCandle(candleNumber) {
     isBlowing = true;
     currentQuestIndex = 4;
     updateQuestUI();
-
-    showToast('Tất cả nến đã tắt! Điều ước sẽ thành hiện thực! ✨', {
-      type: 'gold',
-      duration: 2400
-    });
 
     // Start celebration & transition to letter
     playSfx('firework');
