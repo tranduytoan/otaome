@@ -95,7 +95,7 @@ export function toggleMute() {
  * Play a single chiptune tone with square wave and ADSR envelope
  */
 function playTone(freq, startTime, duration) {
-  if (!audioCtx || !masterGain || muted) return null;
+  if (!audioCtx || !masterGain) return null;
 
   const osc = audioCtx.createOscillator();
   const noteGain = audioCtx.createGain();

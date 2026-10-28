@@ -67,21 +67,17 @@ function runTypewriter() {
   if (!container) return;
 
   clearTypewriter();
-  container.innerHTML = '';
+  container.textContent = '';
 
   const fullText = BIRTHDAY_CONFIG.wishes.join('\n\n');
+  const characters = Array.from(fullText);
   let charIndex = 0;
   const speed = 35; // ms per character
 
   function typeChar() {
-    if (charIndex < fullText.length) {
-      const char = fullText.charAt(charIndex);
-      if (char === '\n') {
-        container.innerHTML += '<br>';
-      } else {
-        container.innerHTML += char;
-      }
+    if (charIndex < characters.length) {
       charIndex++;
+      container.textContent = characters.slice(0, charIndex).join('');
       const timeout = setTimeout(typeChar, speed);
       typewriterTimeouts.push(timeout);
     }

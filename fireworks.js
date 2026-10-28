@@ -18,6 +18,7 @@ let ctx = null;
 let particles = [];
 let animFrameId = null;
 let autoBurstInterval = null;
+let stopTimeoutId = null;
 let isRunning = false;
 
 /**
@@ -130,6 +131,8 @@ function loop() {
 
   if (isRunning || particles.length > 0) {
     animFrameId = requestAnimationFrame(loop);
+  } else {
+    animFrameId = null;
   }
 }
 
@@ -139,6 +142,12 @@ function loop() {
  */
 export function startFireworks(durationMs) {
   if (!canvas || typeof window === 'undefined') return;
+
+  // Clear previous stop timeout if restarting early
+  if (stopTimeoutId) {
+    clearTimeout(stopTimeoutId);
+    stopTimeoutId = null;
+  }
 
   isRunning = true;
   if (!animFrameId) {
@@ -160,8 +169,9 @@ export function startFireworks(durationMs) {
 
   // Auto stop if duration provided
   if (durationMs && durationMs > 0) {
-    setTimeout(() => {
+    stopTimeoutId = setTimeout(() => {
       stopFireworks();
+      stopTimeoutId = null;
     }, durationMs);
   }
 }
@@ -175,4 +185,13 @@ export function stopFireworks() {
     clearInterval(autoBurstInterval);
     autoBurstInterval = null;
   }
+  if (stopTimeoutId) {
+    clearTimeout(stopTimeoutId);
+    stopTimeoutId = null;
+  }
+  if (animFrameId && typeof cancelAnimationFrame !== 'undefined') {
+    cancelAnimationFrame(animFrameId);
+    animFrameId = null;
+  }
+  particles = [];
 }

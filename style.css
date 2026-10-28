@@ -295,6 +295,8 @@ body {
   padding: 6px 14px;
   border: 2px dashed var(--cyan-dark);
   margin-bottom: 24px;
+  max-width: 100%;
+  word-break: break-word;
 }
 
 .glow-cyan {
@@ -857,14 +859,21 @@ body {
 }
 
 @media (max-width: 480px) {
+  #game-container {
+    padding: 10px;
+  }
   .hud-left {
     display: none;
   }
   .pixel-box, .pixel-room, .pixel-scroll-card {
-    padding: 20px 14px;
+    padding: 18px 10px;
+  }
+  .date-badge {
+    font-size: 0.5rem;
+    padding: 4px 8px;
   }
   .pixel-title {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
   }
   .bunting-flags {
     gap: 3px;
