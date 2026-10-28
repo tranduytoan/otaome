@@ -99,7 +99,7 @@
           <span class="quest-icon blink">⚔️</span>
           <span class="quest-phase-tag">QUEST <span id="quest-number">1/4</span></span>
         </div>
-        <div id="quest-text" class="quest-text">Nhiệm vụ: Tìm cách mở hộp quà 🎁</div>
+        <div id="quest-text" class="quest-text">Tìm cách mở hộp quà 🎁</div>
       </div>
 
       <div id="pixel-room" class="pixel-room">
@@ -213,10 +213,12 @@
           </div>
 
           <div class="cake-action-box">
-            <!-- Toast hint for quest actions (e.g. "Hãy tắt đèn trước khi thổi nến nhé!") -->
-            <div id="quest-toast" class="quest-toast" style="display: none;"></div>
+            <!-- Reserved placeholder for toast messages to prevent room size jitter -->
+            <div class="quest-toast-placeholder">
+              <div id="quest-toast" class="quest-toast"></div>
+            </div>
 
-            <!-- Prompt text displayed after submitting wish -->
+            <!-- Legacy fallback cake-prompt container for integration tests -->
             <p id="cake-prompt" class="cake-prompt" style="display: none;"></p>
 
             <!-- Submit Wish Button (appears after typing wish) -->

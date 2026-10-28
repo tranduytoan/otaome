@@ -88,10 +88,10 @@ let levelUpTimeouts = [];
 
 // Quest Definitions
 export const QUESTS = [
-  { id: 1, key: 'gift', title: 'Nhiệm vụ: Tìm cách mở hộp quà 🎁' },
-  { id: 2, key: 'lights', title: 'Nhiệm vụ: Tìm cách tắt đèn phòng 💡' },
-  { id: 3, key: 'wish', title: 'Nhiệm vụ: Ước một điều ước thật đẹp ✉️' },
-  { id: 4, key: 'candles', title: 'Nhiệm vụ: Tìm cách thổi tắt nến trong phòng tối 🕯️' },
+  { id: 1, key: 'gift', title: 'Tìm cách mở hộp quà 🎁' },
+  { id: 2, key: 'lights', title: 'Tìm cách tắt đèn phòng 💡' },
+  { id: 3, key: 'wish', title: 'Ước một điều ước thật đẹp ✉️' },
+  { id: 4, key: 'candles', title: 'Tìm cách thổi tắt nến trong phòng tối 🕯️' },
   { id: 5, key: 'complete', title: 'Tất cả nhiệm vụ đã hoàn thành! 🏆' }
 ];
 
@@ -104,6 +104,10 @@ let userWishText = '';
 let isWishSubmitted = false;
 let candlesBlownState = { 1: false, 2: false, 3: false };
 let toastTimeout = null;
+let toastDismissTimeout = null;
+let questTypewriterTimeout = null;
+let isQuestTextTyping = false;
+let pendingToast = null;
 
 /**
  * Get the current active quest
@@ -113,50 +117,150 @@ export function getCurrentQuest() {
 }
 
 /**
- * Update Quest Tracker HUD UI
+ * Update Quest Tracker HUD UI with typewriter reveal and sound effect
+ * @param {Function} [onComplete] Callback invoked when quest text finishes typing
  */
-export function updateQuestUI() {
-  if (typeof document === 'undefined') return;
+export function updateQuestUI(onComplete) {
+  const quest = getCurrentQuest();
+
+  if (typeof document === 'undefined') {
+    if (typeof onComplete === 'function') onComplete();
+    return;
+  }
+
   const questEl = document.getElementById('quest-text');
   const numEl = document.getElementById('quest-number');
   const trackerBox = document.getElementById('quest-tracker');
-  const quest = getCurrentQuest();
 
   if (numEl) {
     numEl.textContent = currentQuestIndex < 4 ? `${currentQuestIndex + 1}/4` : '4/4 ✓';
   }
-  if (questEl) {
-    questEl.textContent = quest.title;
-  }
+
   if (trackerBox) {
     trackerBox.classList.remove('quest-flash');
     void trackerBox.offsetWidth; // Trigger reflow for animation restart
     trackerBox.classList.add('quest-flash');
   }
+
+  if (!questEl) {
+    if (typeof onComplete === 'function') onComplete();
+    return;
+  }
+
+  if (questTypewriterTimeout) {
+    clearTimeout(questTypewriterTimeout);
+    questTypewriterTimeout = null;
+  }
+
+  isQuestTextTyping = true;
+  questEl.textContent = '';
+  const characters = Array.from(quest.title);
+  let charIdx = 0;
+  const speed = 28;
+
+  function typeChar() {
+    if (charIdx < characters.length) {
+      const char = characters[charIdx];
+      charIdx++;
+      questEl.textContent = characters.slice(0, charIdx).join('');
+      if (char !== ' ' && char !== '\n') {
+        playSfx('text');
+      }
+      questTypewriterTimeout = setTimeout(typeChar, speed);
+    } else {
+      isQuestTextTyping = false;
+      questTypewriterTimeout = null;
+      if (typeof onComplete === 'function') {
+        onComplete();
+      }
+      // If a toast was waiting for quest text to finish, display it now
+      if (pendingToast) {
+        const { msg, opts } = pendingToast;
+        pendingToast = null;
+        showToast(msg, opts);
+      }
+    }
+  }
+
+  typeChar();
 }
 
 /**
- * Show a retro floating toast hint
+ * Clear any active toast message
  */
-export function showToast(msg) {
-  if (typeof document === 'undefined') return;
-  const toast = document.getElementById('quest-toast');
-  if (!toast) return;
+export function clearToast() {
   if (toastTimeout) {
     clearTimeout(toastTimeout);
     toastTimeout = null;
   }
+  if (toastDismissTimeout) {
+    clearTimeout(toastDismissTimeout);
+    toastDismissTimeout = null;
+  }
+  pendingToast = null;
+  if (typeof document !== 'undefined') {
+    const toast = document.getElementById('quest-toast');
+    if (toast) {
+      toast.classList.remove('visible');
+      toast.textContent = '';
+    }
+  }
+}
+
+/**
+ * Show a retro floating toast with cake-prompt style
+ * @param {string} msg Toast message text
+ * @param {Object} [options] Options: duration, type ('gold'|'error'|'normal'), onDismiss
+ */
+export function showToast(msg, options = {}) {
+  const { duration = 2400, type = 'normal', onDismiss = null } = options;
+
+  // Rule: If quest text is currently typing, wait until quest text finishes typing
+  if (isQuestTextTyping) {
+    pendingToast = { msg, opts: options };
+    return;
+  }
+
+  if (typeof document === 'undefined') {
+    if (typeof onDismiss === 'function') {
+      onDismiss();
+    }
+    return;
+  }
+
+  const toast = document.getElementById('quest-toast');
+  if (!toast) {
+    if (typeof onDismiss === 'function') onDismiss();
+    return;
+  }
+
+  if (toastTimeout) {
+    clearTimeout(toastTimeout);
+    toastTimeout = null;
+  }
+  if (toastDismissTimeout) {
+    clearTimeout(toastDismissTimeout);
+    toastDismissTimeout = null;
+  }
+
   toast.textContent = msg;
-  toast.style.display = 'block';
-  toast.classList.remove('fade-out');
+  toast.className = 'quest-toast';
+  if (type === 'gold') {
+    toast.classList.add('toast-gold');
+  } else if (type === 'error') {
+    toast.classList.add('toast-error');
+  }
+  toast.classList.add('visible');
+
   toastTimeout = setTimeout(() => {
-    toast.classList.add('fade-out');
-    setTimeout(() => {
-      if (toast.classList.contains('fade-out')) {
-        toast.style.display = 'none';
+    toast.classList.remove('visible');
+    toastDismissTimeout = setTimeout(() => {
+      toast.textContent = '';
+      if (typeof onDismiss === 'function') {
+        onDismiss();
       }
-    }, 400);
-  }, 2400);
+    }, 380); // Wait for transition fade out
+  }, duration);
 }
 
 /**
@@ -193,7 +297,6 @@ export function openGiftBox() {
     currentQuestIndex = 1;
     playSfx('coin');
     updateQuestUI();
-    showToast('Hộp quà đã mở! Hãy tìm cách tắt đèn phòng nhé! 💡');
   }
 
   return { success: true };
@@ -255,7 +358,6 @@ export function triggerFallingLetter() {
     if (letter) {
       letter.style.display = 'flex';
       letter.classList.add('falling-letter');
-      showToast('Một lá thư bí mật rơi xuống cạnh bánh sinh nhật! ✉️');
     }
   }
 }
@@ -315,7 +417,6 @@ export function handleWishModalClose(overrideText) {
       if (btnSubmit) {
         btnSubmit.style.display = 'inline-block';
       }
-      showToast('Đã lưu điều ước vào thư! Bấm "Gửi điều ước" khi bạn sẵn sàng nhé ✨');
     }
     return { readyToSend: true, wish: trimmed };
   }
@@ -326,7 +427,7 @@ export function handleWishModalClose(overrideText) {
 /**
  * Quest 3: Submit secret wish
  */
-export function submitWish(customWish) {
+export function submitWish(customWish, options = {}) {
   if (isWishSubmitted) return { success: false, reason: 'already_submitted' };
 
   let wish = typeof customWish === 'string' ? customWish.trim() : userWishText;
@@ -336,7 +437,7 @@ export function submitWish(customWish) {
   }
 
   if (!wish) {
-    showToast('Hãy viết điều ước của bạn trước khi gửi nhé! ✍️');
+    showToast('Hãy viết điều ước của bạn trước khi gửi nhé! ✍️', { type: 'error' });
     playSfx('error');
     return { success: false, reason: 'empty_wish' };
   }
@@ -354,27 +455,33 @@ export function submitWish(customWish) {
     if (btnSubmit) btnSubmit.style.display = 'none';
 
     const letter = document.getElementById('table-wish-letter');
-    const promptEl = document.getElementById('cake-prompt');
-
     if (letter) {
       letter.classList.add('flying-to-window');
       setTimeout(() => {
         letter.style.display = 'none';
-        if (promptEl) {
-          promptEl.textContent = 'Ước nguyện đã được gửi gắm vào các vì sao! ✨';
-          promptEl.style.display = 'block';
-          promptEl.style.color = '#ffd166';
-        }
       }, 900);
     }
   }
 
-  if (currentQuestIndex === 2) {
-    currentQuestIndex = 3;
-    playSfx('coin');
-    updateQuestUI();
-    showToast('Điều ước đã gửi gắm vào các vì sao! Hãy thổi tắt 3 ngọn nến trong bóng tối nhé! 🕯️');
-  }
+  // Toast and Quest mutual exclusivity:
+  // Show toast "Ước nguyện đã được gửi gắm vào các vì sao! ✨"
+  // ONLY when this toast dismisses/fades out does Quest 4 activate!
+  const handleQuestAdvance = () => {
+    if (currentQuestIndex === 2) {
+      currentQuestIndex = 3;
+      playSfx('coin');
+      updateQuestUI();
+    }
+    if (options && typeof options.onToastDismiss === 'function') {
+      options.onToastDismiss();
+    }
+  };
+
+  showToast('Ước nguyện đã được gửi gắm vào các vì sao! ✨', {
+    type: 'gold',
+    duration: 2500,
+    onDismiss: handleQuestAdvance
+  });
 
   return { success: true, wish: userWishText };
 }
@@ -385,13 +492,13 @@ export function submitWish(customWish) {
 export function blowIndividualCandle(candleNumber) {
   const num = Number(candleNumber);
   if (!isWishSubmitted) {
-    showToast('Hãy ước và gửi điều ước trước khi thổi nến nhé! ✉️');
+    showToast('Hãy ước và gửi điều ước trước khi thổi nến nhé! ✉️', { type: 'error' });
     playSfx('error');
     return { success: false, reason: 'wish_not_submitted' };
   }
 
   if (!isLightsOff) {
-    showToast('Hãy tắt đèn phòng trước khi thổi nến nhé! 💡');
+    showToast('Hãy tắt đèn phòng trước khi thổi nến nhé! 💡', { type: 'error' });
     playSfx('error');
     return { success: false, reason: 'lights_are_on' };
   }
@@ -416,14 +523,10 @@ export function blowIndividualCandle(candleNumber) {
     currentQuestIndex = 4;
     updateQuestUI();
 
-    if (typeof document !== 'undefined') {
-      const promptEl = document.getElementById('cake-prompt');
-      if (promptEl) {
-        promptEl.textContent = 'Tất cả nến đã tắt! Điều ước sẽ thành hiện thực! ✨';
-        promptEl.style.display = 'block';
-        promptEl.style.color = 'var(--gold)';
-      }
-    }
+    showToast('Tất cả nến đã tắt! Điều ước sẽ thành hiện thực! ✨', {
+      type: 'gold',
+      duration: 2400
+    });
 
     // Start celebration & transition to letter
     playSfx('firework');
@@ -442,7 +545,6 @@ export function blowIndividualCandle(candleNumber) {
     return { success: true, allBlown: true };
   }
 
-  showToast(`Đã thổi tắt ${blownCount}/3 ngọn nến! 💨`);
   return { success: true, allBlown: false, blownCount };
 }
 
@@ -459,6 +561,13 @@ export function resetQuests() {
   isWishSubmitted = false;
   candlesBlownState = { 1: false, 2: false, 3: false };
   isBlowing = false;
+  clearToast();
+  if (questTypewriterTimeout) {
+    clearTimeout(questTypewriterTimeout);
+    questTypewriterTimeout = null;
+  }
+  isQuestTextTyping = false;
+  pendingToast = null;
 
   if (typeof document !== 'undefined') {
     const giftBox = document.getElementById('pixel-gift-box');
