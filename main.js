@@ -177,7 +177,7 @@ export function openGiftBox() {
       setTimeout(() => {
         giftBox.style.display = 'none';
         if (cakeDisplay) {
-          cakeDisplay.style.display = 'block';
+          cakeDisplay.style.display = 'flex';
           cakeDisplay.classList.add('revealed');
         }
       }, 500);
@@ -289,6 +289,30 @@ export function closeWishModal() {
 }
 
 /**
+ * Handle closing the wish modal with X button:
+ * If wish is non-empty and not yet submitted, completes Quest 3!
+ */
+export function handleWishModalClose(overrideText) {
+  let text = typeof overrideText === 'string' ? overrideText : '';
+  if (typeof document !== 'undefined') {
+    const input = document.getElementById('wish-input');
+    if (input && typeof overrideText !== 'string') {
+      text = input.value;
+    }
+  }
+
+  const trimmed = text.trim();
+  closeWishModal();
+
+  if (trimmed.length > 0 && !isWishSubmitted) {
+    submitWish(trimmed);
+    return { submitted: true, wish: trimmed };
+  }
+
+  return { submitted: false };
+}
+
+/**
  * Quest 3: Submit secret wish
  */
 export function submitWish(customWish) {
@@ -319,18 +343,12 @@ export function submitWish(customWish) {
     if (btnSubmit) btnSubmit.style.display = 'none';
 
     const letter = document.getElementById('table-wish-letter');
-    const star = document.getElementById('table-wish-star');
     const promptEl = document.getElementById('cake-prompt');
 
     if (letter) {
       letter.classList.add('flying-to-window');
       setTimeout(() => {
         letter.style.display = 'none';
-        if (star) {
-          star.style.display = 'flex';
-          star.classList.add('dropping-star');
-          playSfx('coin');
-        }
         if (promptEl) {
           promptEl.textContent = 'Ước nguyện đã được gửi gắm vào các vì sao! ✨';
           promptEl.style.display = 'block';
@@ -344,7 +362,7 @@ export function submitWish(customWish) {
     currentQuestIndex = 3;
     playSfx('coin');
     updateQuestUI();
-    showToast('Điều ước đã bay vào các vì sao! Hãy thổi tắt 3 ngọn nến trong bóng tối nhé! 🕯️');
+    showToast('Điều ước đã gửi gắm vào các vì sao! Hãy thổi tắt 3 ngọn nến trong bóng tối nhé! 🕯️');
   }
 
   return { success: true, wish: userWishText };
@@ -464,12 +482,6 @@ export function resetQuests() {
     if (letter) {
       letter.style.display = 'none';
       letter.classList.remove('falling-letter', 'flying-to-window');
-    }
-
-    const star = document.getElementById('table-wish-star');
-    if (star) {
-      star.style.display = 'none';
-      star.classList.remove('dropping-star');
     }
 
     const modal = document.getElementById('wish-modal');
@@ -946,7 +958,7 @@ export function initApp() {
   const btnCloseWish = document.getElementById('btn-close-wish');
   if (btnCloseWish) {
     btnCloseWish.addEventListener('click', () => {
-      closeWishModal();
+      handleWishModalClose();
     });
   }
 

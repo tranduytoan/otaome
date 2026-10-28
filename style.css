@@ -1166,7 +1166,7 @@ body {
   justify-content: center;
   align-items: flex-end;
   gap: 28px;
-  margin-bottom: -4px;
+  margin: 0 auto -4px auto;
   z-index: 5;
   width: 130px;
 }
