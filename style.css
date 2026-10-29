@@ -263,17 +263,6 @@ body {
   max-width: 520px;
 }
 
-.pixel-key-icon {
-  font-size: 2rem;
-  margin-bottom: 8px;
-  animation: keyFloat 1.8s infinite alternate ease-in-out;
-}
-
-@keyframes keyFloat {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-8px); filter: drop-shadow(0 0 10px var(--gold-glow)); }
-}
-
 .login-sub {
   font-size: 0.75rem;
   color: var(--cyan-soft);
@@ -462,13 +451,6 @@ body {
   50% { opacity: 0; }
 }
 
-.press-tip {
-  font-size: 0.8rem;
-  color: var(--gray-pixel);
-  margin-top: 20px;
-  line-height: 1.6;
-}
-
 /* ==========================================================================
    Screen 2: Cozy Pixel Room & Birthday Cake
    ========================================================================== */
@@ -605,27 +587,6 @@ body {
   0% { transform: scale(1); }
   50% { transform: scale(1.03); background: #13274f; }
   100% { transform: scale(1); }
-}
-
-.quest-tracker-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--bg-deep);
-  border: 2px solid var(--gold);
-  padding: 4px 8px;
-  color: var(--gold);
-  font-size: 0.72rem;
-  font-weight: bold;
-  white-space: nowrap;
-}
-
-.quest-text {
-  flex: 1;
-  font-size: 0.88rem;
-  color: #ffffff;
-  line-height: 1.4;
-  letter-spacing: 0.5px;
 }
 
 /* ==========================================================================
@@ -982,24 +943,6 @@ body {
   letter-spacing: 0.5px;
 }
 
-.table-wish-star {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  animation: starDrop 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, starGlow 1.5s infinite alternate ease-in-out;
-}
-
-@keyframes starDrop {
-  0% { transform: translateY(-60px) scale(0.4); opacity: 0; }
-  100% { transform: translateY(0) scale(1.2); opacity: 1; }
-}
-
-@keyframes starGlow {
-  0% { filter: drop-shadow(0 0 6px var(--gold-glow)); transform: scale(1); }
-  100% { filter: drop-shadow(0 0 16px #ffd166); transform: scale(1.15); }
-}
-
 /* ==========================================================================
    Wish Modal & Floating Quest Toast
    ========================================================================== */
@@ -1071,15 +1014,6 @@ body {
   margin-bottom: 16px;
 }
 
-.envelope-stamp {
-  display: inline-block;
-  border: 2px dashed var(--cyan-primary);
-  color: var(--cyan-light);
-  font-size: 0.65rem;
-  padding: 3px 8px;
-  margin-bottom: 8px;
-}
-
 .modal-title {
   font-size: 1.25rem;
   margin-bottom: 6px;
@@ -1118,13 +1052,6 @@ body {
     inset 2px 2px 0 0 #000,
     0 0 14px var(--cyan-glow),
     0 0 0 2px var(--dark-border);
-}
-
-.modal-footer-tip {
-  text-align: center;
-  font-size: 0.72rem;
-  color: var(--gray-pixel);
-  line-height: 1.5;
 }
 
 /* Floating Quest Toast & Reserved Space Placeholder (Between Window and Cake) */
@@ -1677,18 +1604,6 @@ body {
   margin-bottom: 20px;
 }
 
-.badge-quest {
-  display: inline-block;
-  background: var(--gold);
-  color: var(--bg-deep);
-  font-size: 0.85rem;
-  padding: 8px 16px;
-  font-weight: bold;
-  border: 2px solid var(--dark-border);
-  box-shadow: 0 0 12px var(--gold-glow);
-  margin-bottom: 12px;
-}
-
 .letter-title {
   font-size: 1.35rem;
 }
@@ -1740,10 +1655,6 @@ body {
   color: #e6f7ff;
   font-size: 1.05rem;
   line-height: 2.1;
-}
-
-.typewriter-text p {
-  margin-bottom: 14px;
 }
 
 .letter-signature {
@@ -1875,10 +1786,6 @@ body {
     padding: 8px 10px;
     gap: 6px;
     flex-direction: column;
-    text-align: center;
-  }
-  .quest-text {
-    font-size: 0.78rem;
     text-align: center;
   }
   .pixel-light-switch {

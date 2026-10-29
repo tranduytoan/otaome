@@ -279,6 +279,47 @@ export function showToast(msg, options = {}) {
 }
 
 /**
+ * Advance quest with a delay to allow visual animations to complete
+ */
+function advanceQuestWithDelay(fromIndex, toIndex, delayMs = 1100) {
+  if (currentQuestIndex !== fromIndex) return;
+
+  if (typeof document === 'undefined') {
+    currentQuestIndex = toIndex;
+    playSfx('coin');
+    updateQuestUI();
+  } else {
+    clearQuestTransition();
+    questTransitionTimeout = setTimeout(() => {
+      if (currentScreen === 'screen-cake' && currentQuestIndex === fromIndex) {
+        currentQuestIndex = toIndex;
+        playSfx('coin');
+        updateQuestUI();
+      }
+    }, delayMs);
+  }
+}
+
+/**
+ * Trigger celebration fireworks and transition to birthday letter
+ */
+function triggerCelebrationAndTransition() {
+  isBlowing = true;
+  playSfx('firework');
+  startFireworks(6000);
+
+  const t = setTimeout(() => {
+    if (currentScreen === 'screen-cake') {
+      switchScreen('screen-letter');
+      triggerLevelUp(() => {
+        runTypewriter();
+      });
+    }
+  }, 2400);
+  typewriterTimeouts.push(t);
+}
+
+/**
  * Quest 1: Open the Gift Box to reveal the cake
  */
 export function openGiftBox() {
@@ -308,24 +349,7 @@ export function openGiftBox() {
     }
   }
 
-  if (currentQuestIndex === 0) {
-    // Wait until gift box lid flies off (500ms) and cake finishes reveal animation (600ms) -> 1100ms
-    if (typeof document === 'undefined') {
-      currentQuestIndex = 1;
-      playSfx('coin');
-      updateQuestUI();
-    } else {
-      clearQuestTransition();
-      questTransitionTimeout = setTimeout(() => {
-        if (currentScreen === 'screen-cake' && currentQuestIndex === 0) {
-          currentQuestIndex = 1;
-          playSfx('coin');
-          updateQuestUI();
-        }
-      }, 1100);
-    }
-  }
-
+  advanceQuestWithDelay(0, 1, 1100);
   return { success: true };
 }
 
@@ -365,24 +389,7 @@ export function toggleLights() {
   if (isLightsOff && !hasTurnedOffLightsFirstTime) {
     hasTurnedOffLightsFirstTime = true;
     triggerFallingLetter();
-
-    if (currentQuestIndex === 1) {
-      if (typeof document === 'undefined') {
-        currentQuestIndex = 2;
-        playSfx('coin');
-        updateQuestUI();
-      } else {
-        // Wait for room to dim (500ms) and letter to float down (1000ms) -> 1100ms
-        clearQuestTransition();
-        questTransitionTimeout = setTimeout(() => {
-          if (currentScreen === 'screen-cake' && currentQuestIndex === 1) {
-            currentQuestIndex = 2;
-            playSfx('coin');
-            updateQuestUI();
-          }
-        }, 1100);
-      }
-    }
+    advanceQuestWithDelay(1, 2, 1100);
   }
 
   return { success: true, lightsOff: isLightsOff };
@@ -559,24 +566,9 @@ export function blowIndividualCandle(candleNumber) {
 
   const blownCount = Object.values(candlesBlownState).filter(Boolean).length;
   if (blownCount === 3) {
-    isBlowing = true;
     currentQuestIndex = 4;
     updateQuestUI();
-
-    // Start celebration & transition to letter
-    playSfx('firework');
-    startFireworks(6000);
-
-    const t = setTimeout(() => {
-      if (currentScreen === 'screen-cake') {
-        switchScreen('screen-letter');
-        triggerLevelUp(() => {
-          runTypewriter();
-        });
-      }
-    }, 2400);
-    typewriterTimeouts.push(t);
-
+    triggerCelebrationAndTransition();
     return { success: true, allBlown: true };
   }
 
@@ -850,8 +842,6 @@ export function runTypewriter() {
  */
 export function blowCandles() {
   if (isBlowing) return;
-  isBlowing = true;
-
   if (typeof document === 'undefined') return;
 
   const btnBlow = document.getElementById('btn-blow');
@@ -875,20 +865,7 @@ export function blowCandles() {
     promptEl.style.color = '#ffd166';
   }
 
-  // Start celebratory pixel fireworks
-  playSfx('firework');
-  startFireworks(6000);
-
-  // Transition to Letter screen after celebration pause
-  const t = setTimeout(() => {
-    if (currentScreen === 'screen-cake') {
-      switchScreen('screen-letter');
-      triggerLevelUp(() => {
-        runTypewriter();
-      });
-    }
-  }, 2400);
-  typewriterTimeouts.push(t);
+  triggerCelebrationAndTransition();
 }
 
 /**
@@ -951,12 +928,6 @@ export function stopAllEffects() {
   resetQuests();
 
   if (typeof document === 'undefined') return;
-
-  // Reset candle visuals
-  const candles = document.querySelectorAll('.pixel-candle');
-  candles.forEach(candle => {
-    candle.classList.remove('extinguished');
-  });
 
   // Reset blow button
   const btnBlow = document.getElementById('btn-blow');
