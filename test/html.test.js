@@ -18,4 +18,6 @@ test('index.html contains all required game stages and control elements', () => 
   assert.match(html, /Press Start 2P/);
   assert.match(html, /style\.css/);
   assert.match(html, /type="module"\s+src="main\.js"/);
+  assert.match(html, /href="\.\/assets\/images\/favicon\.png"|href="assets\/images\/favicon\.png"/);
+  assert.ok(!html.includes('href="/assets/'), 'Favicon href must not use root-absolute path for GitHub Pages subpath compatibility');
 });

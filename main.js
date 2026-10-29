@@ -558,7 +558,7 @@ export function openGiftBox() {
  */
 export function toggleLights() {
   if (!isBoxOpened) {
-    showToast('Hãy mở hộp quà trước đã nhé! 🎁', { type: 'error' });
+    showToast('Hãy mở hộp quà trước đã nhé!', { type: 'error' });
     playSfx('error');
     return { success: false, reason: 'box_not_opened' };
   }
