@@ -902,8 +902,8 @@ body {
   align-items: center;
   justify-content: center;
   gap: 16px;
-  margin-top: 14px;
-  min-height: 44px;
+  margin-top: 6px;
+  min-height: 0;
 }
 
 .table-wish-letter {
@@ -1179,13 +1179,12 @@ body {
     0 0 0 2px var(--dark-border),
     0 0 16px rgba(0, 245, 255, 0.2),
     inset 0 0 10px rgba(0, 59, 70, 0.5);
-  padding: 14px 20px;
-  margin: 0 auto 16px auto;
-  min-height: 58px;
+  padding: 12px 20px;
+  margin: 0 auto 10px auto;
+  min-height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
   position: relative;
   transition: all 0.3s ease;
 }
@@ -1205,13 +1204,16 @@ body {
   letter-spacing: 0.5px;
   text-shadow: 0 0 6px var(--cyan-glow);
   word-break: break-word;
+  text-align: left;
+  display: inline-block;
+  max-width: 100%;
 }
 
 .pixel-cake-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 8px;
 }
 
 /* Candles & Flames */
@@ -1437,8 +1439,12 @@ body {
 }
 
 .cake-action-box {
-  margin-top: 28px;
+  margin-top: 8px;
   text-align: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .cake-prompt {

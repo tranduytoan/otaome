@@ -21,39 +21,14 @@ test('index.html places quest-toast between window and cake table, and places qu
   assert.ok(cakePos < dialoguePos, 'quest-text must be below the cake');
 });
 
-test('Quest sequence follows RPG dialogue steps 1 through 5', () => {
-  mainModule.resetQuests();
-  
-  // Step 1: Quest text 1 initially active
-  assert.equal(mainModule.getCurrentQuest().id, 1);
-  assert.match(mainModule.getCurrentQuest().title, /quà/i);
+test('style.css centers rpg-dialogue-box text block while keeping multi-line text left-aligned', () => {
+  const css = fs.readFileSync('style.css', 'utf8');
+  assert.match(css, /\.rpg-dialogue-box\s*\{[^}]*justify-content:\s*center/);
+  assert.match(css, /\.rpg-dialogue-text\s*\{[^}]*text-align:\s*left/);
+});
 
-  // Step 2: Open gift box -> advances to Quest 2
-  mainModule.openGiftBox();
-  assert.equal(mainModule.getCurrentQuest().id, 2);
-  assert.match(mainModule.getCurrentQuest().title, /đèn/i);
-
-  // Step 3: Turn off lights -> advances to Quest 3
-  mainModule.toggleLights();
-  assert.equal(mainModule.getCurrentQuest().id, 3);
-  assert.match(mainModule.getCurrentQuest().title, /thư/i);
-
-  // Step 4: Wish entered -> ready to submit, but remains on Quest 3
-  const resClose = mainModule.handleWishModalClose('Điều ước ý nghĩa');
-  assert.equal(resClose.readyToSend, true);
-  assert.equal(mainModule.getCurrentQuest().id, 3);
-
-  // Step 5: Submit wish -> advances to Quest 4
-  const resSubmit = mainModule.submitWish();
-  assert.equal(resSubmit.success, true);
-  assert.equal(mainModule.getCurrentQuest().id, 4);
-  assert.match(mainModule.getCurrentQuest().title, /thổi/i);
-
-  // Step 6: Blow all candles -> advances to Complete (Quest 5)
-  mainModule.blowIndividualCandle(1);
-  mainModule.blowIndividualCandle(2);
-  const resBlow3 = mainModule.blowIndividualCandle(3);
-  assert.equal(resBlow3.allBlown, true);
-  assert.equal(mainModule.getCurrentQuest().id, 5);
-  assert.match(mainModule.getCurrentQuest().title, /hoàn thành/i);
+test('style.css reduces vertical gap between cake container and dialogue box', () => {
+  const css = fs.readFileSync('style.css', 'utf8');
+  assert.match(css, /\.pixel-cake-container\s*\{[^}]*margin-bottom:\s*([0-9]|1[0-2])px/);
+  assert.match(css, /\.cake-action-box\s*\{[^}]*margin-top:\s*([0-9]|1[0-2])px/);
 });

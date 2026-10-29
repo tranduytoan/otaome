@@ -89,7 +89,7 @@ let levelUpTimeouts = [];
 // Quest Definitions
 export const QUESTS = [
   { id: 1, key: 'gift', title: 'Hình như có quà cho bạn!??' },
-  { id: 2, key: 'lights', title: 'Đèn phòng đang làm lu mờ những ánh nến...?' },
+  { id: 2, key: 'lights', title: 'Có vẻ đèn phòng đang làm lu mờ những ánh nến...!' },
   { id: 3, key: 'wish', title: 'Một lá thư vừa rơi xuống cạnh bánh kem!??' },
   { id: 4, key: 'candles', title: 'Đã đến lúc thổi nến rồi!!!' },
   { id: 5, key: 'complete', title: 'Tất cả nhiệm vụ đã hoàn thành!' }
@@ -504,7 +504,7 @@ export function submitWish(customWish, options = {}) {
   }
 
   // Toast and Quest mutual exclusivity:
-  // Show toast "Ước nguyện đã được gửi gắm vào các vì sao! ✨"
+  // Show toast "Ước nguyện đã được gửi gắm vào các vì sao!"
   // ONLY when this toast dismisses/fades out does Quest 4 activate!
   const handleQuestAdvance = () => {
     if (currentQuestIndex === 2) {
@@ -517,7 +517,7 @@ export function submitWish(customWish, options = {}) {
     }
   };
 
-  showToast('Ước nguyện đã được gửi gắm vào các vì sao! ✨', {
+  showToast('Ước nguyện đã được gửi gắm tới các vì sao!', {
     type: 'gold',
     duration: 2500,
     onDismiss: handleQuestAdvance
@@ -788,7 +788,7 @@ export function runTypewriter() {
 
   const paragraphs = [...BIRTHDAY_CONFIG.wishes];
   if (BIRTHDAY_CONFIG.userWish) {
-    paragraphs.splice(3, 0, `🌟 Điều ước của Thu Thùy: "${BIRTHDAY_CONFIG.userWish}" — Ước nguyện đã gửi gắm vào các vì sao, chúc điều ước này sớm thành hiện thực nhé! ✨`);
+    paragraphs.splice(3, 0, `🌟 Điều ước của Thu Thùy: "${BIRTHDAY_CONFIG.userWish}" — Ước nguyện đã gửi gắm tới các vì sao, chúc điều ước này sớm thành hiện thực nhé! ✨`);
   }
 
   const charSpeed = 35; // ms per character
@@ -871,7 +871,7 @@ export function blowCandles() {
 
   const promptEl = document.getElementById('cake-prompt');
   if (promptEl) {
-    promptEl.textContent = 'Ước nguyện đã được gửi gắm vào các vì sao! ✨';
+    promptEl.textContent = 'Ước nguyện đã được gửi gắm tới các vì sao! ✨';
     promptEl.style.color = '#ffd166';
   }
 
