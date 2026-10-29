@@ -51,3 +51,12 @@ test('updateQuestUI and resetGame do not run quest typewriter or text sound when
     'resetQuests must not unconditionally trigger updateQuestUI'
   );
 });
+
+test('formatLetterHtml formats Unknown Admin with text-red class and style.css defines red styling', () => {
+  assert.equal(typeof mainModule.formatLetterHtml, 'function');
+  const formatted = mainModule.formatLetterHtml('"Bởi vì nụ cười của em là đẹp nhất 💙" - Unknown Admin');
+  assert.match(formatted, /<span class="text-red">Unknown Admin<\/span>/);
+
+  const css = fs.readFileSync('style.css', 'utf8');
+  assert.match(css, /\.text-red\s*\{[^}]*color:\s*#[0-9a-fA-F]+/);
+});

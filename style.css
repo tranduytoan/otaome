@@ -1125,12 +1125,13 @@ body {
 
 /* Floating Quest Toast & Reserved Space Placeholder (Between Window and Cake) */
 .quest-toast-placeholder {
-  min-height: 40px;
+  min-height: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  margin: 0 auto 16px auto;
+  margin: 0 auto 14px auto;
   box-sizing: border-box;
 }
 
@@ -1138,7 +1139,9 @@ body {
   font-size: 1.05rem;
   color: var(--cyan-soft);
   text-shadow: 0 0 10px var(--cyan-glow);
-  line-height: 1.6;
+  line-height: 1.4;
+  margin: 0;
+  padding: 0;
   text-align: center;
   opacity: 0;
   visibility: hidden;
@@ -1818,6 +1821,13 @@ body {
   line-height: 2.1;
 }
 
+.typewriter-text .text-red,
+.text-red {
+  color: #ff4757;
+  font-weight: bold;
+  text-shadow: 0 0 8px rgba(255, 71, 87, 0.65);
+}
+
 .letter-signature {
   margin-top: 24px;
   display: flex;
@@ -1883,6 +1893,19 @@ body {
     width: 100px;
     height: 40px;
   }
+  .frosting-drips::after {
+    left: 6px;
+    box-shadow: 
+      0 2px 0 0 var(--cyan-primary),
+      18px 0 0 0 var(--cyan-light),
+      18px 2px 0 0 var(--cyan-primary),
+      38px -3px 0 0 var(--cyan-light),
+      38px -1px 0 0 var(--cyan-primary),
+      56px 4px 0 0 var(--cyan-light),
+      56px 6px 0 0 var(--cyan-primary),
+      74px 0 0 0 var(--cyan-light),
+      74px 2px 0 0 var(--cyan-primary);
+  }
   .tier-bottom {
     width: 150px;
     height: 50px;
@@ -1911,6 +1934,16 @@ body {
   }
   .exp-gain-text {
     font-size: 1.15rem;
+  }
+  .quest-toast-placeholder {
+    min-height: 48px;
+    height: 48px;
+    margin-bottom: 12px;
+  }
+  .quest-toast {
+    font-size: 0.95rem;
+    line-height: 1.35;
+    max-width: 92%;
   }
 }
 
@@ -1978,11 +2011,14 @@ body {
     min-height: 95px;
   }
   .quest-toast {
-    font-size: 0.92rem;
+    font-size: 0.88rem;
+    line-height: 1.35;
+    max-width: 96%;
   }
   .quest-toast-placeholder {
-    min-height: 44px;
-    margin-bottom: 10px;
+    min-height: 52px;
+    height: 52px;
+    margin-bottom: 8px;
   }
   .rpg-dialogue-box {
     padding: 10px 14px;

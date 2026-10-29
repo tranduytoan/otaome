@@ -985,6 +985,24 @@ export function typeCakePrompt() {
 }
 
 /**
+ * Format typewriter text to safely display HTML with styled elements (e.g. Unknown Admin in red)
+ */
+export function formatLetterHtml(rawText) {
+  if (!rawText) return '';
+  const escaped = rawText
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  if (escaped.includes('Unknown Admin')) {
+    return escaped.replace(/Unknown Admin/g, '<span class="text-red">Unknown Admin</span>');
+  }
+
+  // Highlight as it is being typed letter-by-letter after ' - '
+  return escaped.replace(/( - )(U[a-zA-Z\s]*)$/g, (_, p1, p2) => `${p1}<span class="text-red">${p2}</span>`);
+}
+
+/**
  * Run 8-bit typewriter effect for the birthday letter with paragraph pauses & SFX
  */
 export function runTypewriter() {
@@ -993,7 +1011,11 @@ export function runTypewriter() {
   if (!container) return;
 
   clearTypewriter();
-  container.textContent = '';
+  if ('innerHTML' in container) {
+    container.innerHTML = '';
+  } else {
+    container.textContent = '';
+  }
 
   const paragraphs = [...BIRTHDAY_CONFIG.wishes];
   if (BIRTHDAY_CONFIG.userWish) {
@@ -1027,7 +1049,12 @@ export function runTypewriter() {
 
         const previousText = paragraphs.slice(0, idx).join('\n\n') + (idx > 0 ? '\n\n' : '');
         const currentTyped = characters.slice(0, charIndex).join('');
-        container.textContent = previousText + currentTyped;
+        const fullText = previousText + currentTyped;
+        if ('innerHTML' in container) {
+          container.innerHTML = formatLetterHtml(fullText);
+        } else {
+          container.textContent = fullText;
+        }
 
         if (char !== ' ' && char !== '\n') {
           playSfx('text');
@@ -1205,7 +1232,11 @@ export function stopAllEffects() {
   // Clear letter
   const container = document.getElementById('letter-content');
   if (container) {
-    container.textContent = '';
+    if ('innerHTML' in container) {
+      container.innerHTML = '';
+    } else {
+      container.textContent = '';
+    }
   }
 
   // Reset Level Up banner, vertical roller, reward area & letter container

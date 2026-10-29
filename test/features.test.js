@@ -20,6 +20,17 @@ test('style.css defines levelup animations and fixes cake tier-top drips without
   assert.ok(!css.includes('116px 6px 0 0 var(--cyan-light)'), 'Removed overflowing 116px drip shadow');
 });
 
+test('style.css ensures mobile frosting-drips does not overflow 100px tier-top on max-width: 768px', () => {
+  const css = fs.readFileSync('style.css', 'utf8');
+  const mediaMatch = css.match(/@media\s*\(max-width:\s*768px\)\s*\{([\s\S]*?)\n\}/);
+  assert.ok(mediaMatch, 'max-width: 768px media query must exist');
+  const mediaContent = mediaMatch[1];
+  assert.match(mediaContent, /\.frosting-drips::after/);
+  // Must not have 102px or 84px offset on mobile 100px tier
+  assert.ok(!mediaContent.includes('102px'), 'Must not have 102px drip offset on mobile 100px tier');
+  assert.ok(!mediaContent.includes('84px'), 'Must not have 84px drip offset on mobile 100px tier');
+});
+
 test('audio.js supports levelup sound effect', () => {
   assert.doesNotThrow(() => {
     audioModule.playSfx('levelup');

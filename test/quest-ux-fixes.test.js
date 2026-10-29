@@ -27,3 +27,11 @@ test('showToast removes display property so toast is visible', () => {
   assert.match(mainCode, /toast\.style\.removeProperty\('display'\)/);
   assert.ok(!mainCode.includes("toast.style.display = 'none'"));
 });
+
+test('style.css ensures mobile quest-toast-placeholder has fixed height to prevent cake vertical shift', () => {
+  const css = fs.readFileSync('style.css', 'utf8');
+  const mobileMatch = css.match(/@media\s*\(max-width:\s*480px\)\s*\{([\s\S]*?)\n\}/);
+  assert.ok(mobileMatch, 'max-width: 480px media query must exist');
+  const mobileContent = mobileMatch[1];
+  assert.match(mobileContent, /\.quest-toast-placeholder\s*\{[^}]*height:\s*(?:5[0-9]|6[0-9])px/);
+});
