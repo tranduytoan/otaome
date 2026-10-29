@@ -48,6 +48,10 @@ test('style.css ensures .pixel-heart is perfectly symmetric around center axis x
   assert.equal(bottomTips.length, 1, 'Should have 1 bottom tip pixel');
   assert.equal(bottomTips[0][0], 0, `Bottom tip must be centered at x = 0, but was at x = ${bottomTips[0][0]}`);
 
+  // Center notch should be at (0, -12px) and (0, -24px) should be empty for heart cleft
+  assert.ok(pointSet.has('0,-12'), 'Pixel heart should have center notch point at (0, -12px)');
+  assert.ok(!pointSet.has('0,-24'), 'Point (0, -24px) should be empty to create top cleft indentation curve');
+
   // Every shadow (x, y) must have its symmetric counterpart (-x, y)
   points.forEach(([x, y]) => {
     assert.ok(

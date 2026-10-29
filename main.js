@@ -17,9 +17,8 @@ export const BIRTHDAY_CONFIG = {
   wishes: [
     "Chúc mừng sinh nhật lần thứ 22 của Thu Thùy!",
     "Bước sang tuổi mới, chúc bạn luôn giữ nụ cười rạng rỡ, ngập tràn năng lượng tích cực và luôn hạnh phúc.",
-    "Chúc mọi dự định và ước mơ của bạn trong năm nay đều sẽ nở hoa rực rỡ như những hạt pháo hoa pixel này!",
-    "Mong rằng mỗi ngày của bạn đều là một màn chơi thật vui vẻ, bình yên và ngập tràn may mắn. 💙",
-    "LEVEL UP SUCCESSFUL! Happy Birthday, Thu Thùy!"
+    "Đừng giữ điều gì nặng nề trong lòng, cũng đừng thúc ép bản thân những điều bạn không muốn.",
+    "\"Bởi vì nụ cười của em là đẹp nhất 💙\" - Unknown Admin"
   ]
 };
 
@@ -121,6 +120,25 @@ export function clearQuestTransition() {
 }
 
 /**
+ * Calculate highest unlocked quest index based on actual game progress
+ */
+export function getTargetQuestIndex() {
+  if (candlesBlownState[1] && candlesBlownState[2] && candlesBlownState[3]) {
+    return 4; // Quest 5 (index 4: complete)
+  }
+  if (isWishSubmitted) {
+    return 3; // Quest 4 (index 3: candles)
+  }
+  if (hasTurnedOffLightsFirstTime) {
+    return 2; // Quest 3 (index 2: wish)
+  }
+  if (isBoxOpened) {
+    return 1; // Quest 2 (index 1: lights)
+  }
+  return 0; // Quest 1 (index 0: gift)
+}
+
+/**
  * Get the current active quest
  */
 export function getCurrentQuest() {
@@ -135,6 +153,12 @@ export function updateQuestUI(onComplete) {
   const quest = getCurrentQuest();
 
   if (typeof document === 'undefined') {
+    if (typeof onComplete === 'function') onComplete();
+    return;
+  }
+
+  // Guard: Quest dialogue must only run on screen-cake
+  if (currentScreen !== 'screen-cake') {
     if (typeof onComplete === 'function') onComplete();
     return;
   }
@@ -170,6 +194,12 @@ export function updateQuestUI(onComplete) {
   const speed = 55; // Relaxed JRPG typing speed for comfortable reading
 
   function typeChar() {
+    if (currentScreen !== 'screen-cake') {
+      isQuestTextTyping = false;
+      questTypewriterTimeout = null;
+      return;
+    }
+
     if (charIdx < characters.length) {
       const char = characters[charIdx];
       charIdx++;
@@ -189,6 +219,19 @@ export function updateQuestUI(onComplete) {
         const { msg, opts } = pendingToast;
         pendingToast = null;
         showToast(msg, opts);
+      }
+
+      // Check if player has progressed further during typing through fast actions
+      const targetIndex = getTargetQuestIndex();
+      if (currentQuestIndex < targetIndex) {
+        clearQuestTransition();
+        questTransitionTimeout = setTimeout(() => {
+          if (currentScreen === 'screen-cake' && currentQuestIndex < getTargetQuestIndex()) {
+            currentQuestIndex++;
+            playSfx('coin');
+            updateQuestUI();
+          }
+        }, 1000);
       }
     }
   }
@@ -282,13 +325,14 @@ export function showToast(msg, options = {}) {
  * Advance quest with a delay to allow visual animations to complete
  */
 function advanceQuestWithDelay(fromIndex, toIndex, delayMs = 1100) {
-  if (currentQuestIndex !== fromIndex) return;
-
   if (typeof document === 'undefined') {
-    currentQuestIndex = toIndex;
+    currentQuestIndex = Math.max(currentQuestIndex, toIndex);
     playSfx('coin');
     updateQuestUI();
-  } else {
+    return;
+  }
+
+  if (currentQuestIndex === fromIndex && !isQuestTextTyping) {
     clearQuestTransition();
     questTransitionTimeout = setTimeout(() => {
       if (currentScreen === 'screen-cake' && currentQuestIndex === fromIndex) {
@@ -512,10 +556,17 @@ export function submitWish(customWish, options = {}) {
   // Show toast "Ước nguyện đã được gửi gắm vào các vì sao!"
   // ONLY when this toast dismisses/fades out does Quest 4 activate!
   const handleQuestAdvance = () => {
-    if (currentQuestIndex === 2) {
+    if (typeof document === 'undefined') {
       currentQuestIndex = 3;
       playSfx('coin');
       updateQuestUI();
+    } else {
+      const targetIdx = getTargetQuestIndex();
+      if (currentQuestIndex < targetIdx && !isQuestTextTyping) {
+        currentQuestIndex = targetIdx;
+        playSfx('coin');
+        updateQuestUI();
+      }
     }
     if (options && typeof options.onToastDismiss === 'function') {
       options.onToastDismiss();
@@ -543,7 +594,7 @@ export function blowIndividualCandle(candleNumber) {
   }
 
   if (!isLightsOff) {
-    showToast('Hãy tắt đèn phòng trước khi thổi nến nhé! 💡', { type: 'error' });
+    showToast('Hãy tắt đèn phòng trước khi thổi nến nhé!', { type: 'error' });
     playSfx('error');
     return { success: false, reason: 'lights_are_on' };
   }
@@ -650,7 +701,14 @@ export function resetQuests() {
     const candles = document.querySelectorAll('.pixel-candle');
     candles.forEach(c => c.classList.remove('extinguished'));
 
-    updateQuestUI();
+    const questEl = document.getElementById('quest-text');
+    if (questEl) {
+      questEl.textContent = '';
+    }
+
+    if (currentScreen === 'screen-cake') {
+      updateQuestUI();
+    }
   }
 }
 
@@ -778,7 +836,13 @@ export function runTypewriter() {
 
   const paragraphs = [...BIRTHDAY_CONFIG.wishes];
   if (BIRTHDAY_CONFIG.userWish) {
-    paragraphs.splice(3, 0, `🌟 Điều ước của Thu Thùy: "${BIRTHDAY_CONFIG.userWish}" — Ước nguyện đã gửi gắm tới các vì sao, chúc điều ước này sớm thành hiện thực nhé! ✨`);
+    const cleanWish = BIRTHDAY_CONFIG.userWish.replace(/\r\n/g, '\n').trim();
+    if (cleanWish) {
+      const wishParagraph = cleanWish.includes('\n')
+        ? `Điều ước của Thu Thùy:\n"${cleanWish}"\nƯớc nguyện đã được gửi tới các vì sao, chúc điều ước này sớm thành hiện thực nhé!`
+        : `Điều ước của Thu Thùy: "${cleanWish}" — Ước nguyện đã được gửi tới các vì sao, chúc điều ước này sớm thành hiện thực nhé!`;
+      paragraphs.splice(2, 0, wishParagraph);
+    }
   }
 
   const charSpeed = 35; // ms per character
@@ -824,6 +888,10 @@ export function runTypewriter() {
           // All paragraphs completed
           if (currentScreen === 'screen-letter') {
             playSfx('chime');
+            const btnReplay = document.getElementById('btn-replay');
+            if (btnReplay) {
+              btnReplay.style.display = 'inline-block';
+            }
           }
         }
       }
@@ -927,6 +995,7 @@ export function claimLevelReward() {
   if (typeof document === 'undefined') return;
   const banner = document.getElementById('levelup-banner');
   const letterContainer = document.getElementById('birthday-letter-container');
+  const btnReplay = document.getElementById('btn-replay');
 
   playSfx('coin');
 
@@ -935,6 +1004,9 @@ export function claimLevelReward() {
   }
   if (letterContainer) {
     letterContainer.style.display = 'flex';
+  }
+  if (btnReplay) {
+    btnReplay.style.display = 'none';
   }
 
   runTypewriter();
@@ -990,6 +1062,11 @@ export function stopAllEffects() {
   const letterContainer = document.getElementById('birthday-letter-container');
   if (letterContainer) {
     letterContainer.style.display = 'none';
+  }
+
+  const btnReplay = document.getElementById('btn-replay');
+  if (btnReplay) {
+    btnReplay.style.display = 'none';
   }
 
   const roller = document.getElementById('level-roller');
@@ -1090,6 +1167,7 @@ export function initApp() {
       playSfx('coin');
       resetQuests();
       switchScreen('screen-cake');
+      updateQuestUI();
     });
   }
 
