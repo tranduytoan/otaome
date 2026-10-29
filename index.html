@@ -206,9 +206,9 @@
               <div id="table-wish-letter" class="table-wish-letter" style="display: none;" title="Chạm để viết điều ước">
                 <div class="mini-envelope-pixel">
                   <div class="mini-flap"></div>
+                  <div class="mini-creases"></div>
                   <div class="mini-seal">♥</div>
                 </div>
-                <span class="mini-letter-label blink">ĐIỀU ƯỚC ✉️</span>
               </div>
             </div>
           </div>
@@ -277,34 +277,49 @@
             </div>
             <span class="level-up-tag">LEVEL UP!</span>
           </div>
-        </div>
 
-        <div class="pixel-envelope-header">
-          <h2 class="letter-title glow-cyan">THƯ CHÚC MỪNG SINH NHẬT</h2>
-        </div>
-
-        <div class="pixel-scroll-card">
-          <div class="card-corner tl"></div>
-          <div class="card-corner tr"></div>
-          <div class="card-corner bl"></div>
-          <div class="card-corner br"></div>
-
-          <div class="letter-body">
-            <div class="letter-greeting">Gửi Thu Thùy,</div>
-            <div id="letter-content" class="typewriter-text">
-              <!-- Content will be typed out dynamically by main.js -->
-            </div>
-            <div class="letter-signature">
-              <div class="sig-heart">♥</div>
-              <div class="sig-text">Happy Birthday, 29/10!</div>
+          <!-- Level 22's Reward Claim Area -->
+          <div id="level-reward-area" class="level-reward-area" style="display: none;">
+            <div class="reward-title">LEVEL-UP GIFT:</div>
+            <div id="btn-claim-gift" class="reward-gift-letter" title="Chạm để mở thư chúc mừng!" role="button" tabindex="0">
+              <div class="mini-envelope-pixel reward-envelope">
+                <div class="mini-flap"></div>
+                <div class="mini-creases"></div>
+                <div class="mini-seal">♥</div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="letter-actions">
-          <button id="btn-replay" class="retro-btn btn-md">
-            ↺ XEM LẠI TỪ ĐẦU
-          </button>
+        <!-- Birthday Letter Container (Revealed after claiming reward) -->
+        <div id="birthday-letter-container" class="birthday-letter-container" style="display: none;">
+          <div class="pixel-envelope-header">
+            <h2 class="letter-title glow-cyan">THƯ CHÚC MỪNG SINH NHẬT</h2>
+          </div>
+
+          <div class="pixel-scroll-card">
+            <div class="card-corner tl"></div>
+            <div class="card-corner tr"></div>
+            <div class="card-corner bl"></div>
+            <div class="card-corner br"></div>
+
+            <div class="letter-body">
+              <div class="letter-greeting">Gửi Thu Thùy,</div>
+              <div id="letter-content" class="typewriter-text">
+                <!-- Content will be typed out dynamically by main.js -->
+              </div>
+              <div class="letter-signature">
+                <div class="sig-heart">♥</div>
+                <div class="sig-text">Happy Birthday, 29/10!</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="letter-actions">
+            <button id="btn-replay" class="retro-btn btn-md">
+              ↺ XEM LẠI TỪ ĐẦU
+            </button>
+          </div>
         </div>
       </div>
     </section>

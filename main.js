@@ -89,7 +89,7 @@ let levelUpTimeouts = [];
 // Quest Definitions
 export const QUESTS = [
   { id: 1, key: 'gift', title: 'Hình như có quà cho bạn!??' },
-  { id: 2, key: 'lights', title: 'Có vẻ đèn phòng đang làm lu mờ những ánh nến...!' },
+  { id: 2, key: 'lights', title: 'Có vẻ đèn phòng đang làm lu mờ những ánh nến..!' },
   { id: 3, key: 'wish', title: 'Một lá thư vừa rơi xuống cạnh bánh kem!??' },
   { id: 4, key: 'candles', title: 'Đã đến lúc thổi nến rồi!!!' },
   { id: 5, key: 'complete', title: 'Tất cả nhiệm vụ đã hoàn thành!' }
@@ -311,9 +311,7 @@ function triggerCelebrationAndTransition() {
   const t = setTimeout(() => {
     if (currentScreen === 'screen-cake') {
       switchScreen('screen-letter');
-      triggerLevelUp(() => {
-        runTypewriter();
-      });
+      triggerLevelUp();
     }
   }, 2400);
   typewriterTimeouts.push(t);
@@ -539,7 +537,7 @@ export function submitWish(customWish, options = {}) {
 export function blowIndividualCandle(candleNumber) {
   const num = Number(candleNumber);
   if (!isWishSubmitted) {
-    showToast('Hãy ước và gửi điều ước trước khi thổi nến nhé! ✉️', { type: 'error' });
+    showToast('Hãy ước và gửi điều ước trước khi thổi nến nhé!', { type: 'error' });
     playSfx('error');
     return { success: false, reason: 'wish_not_submitted' };
   }
@@ -906,13 +904,40 @@ export function triggerLevelUp(onComplete) {
     levelUpTimeouts.push(tHud);
   }
 
-  // Wait until level up banner animation sequence finishes before callback
+  // Wait until level up banner animation sequence finishes, then show reward gift
   const tDone = setTimeout(() => {
-    if (currentScreen === 'screen-letter' && typeof onComplete === 'function') {
-      onComplete();
+    if (currentScreen === 'screen-letter') {
+      const rewardArea = document.getElementById('level-reward-area');
+      if (rewardArea) {
+        rewardArea.style.display = 'flex';
+        playSfx('chime');
+      }
+      if (typeof onComplete === 'function') {
+        onComplete();
+      }
     }
-  }, 2500);
+  }, 2400);
   levelUpTimeouts.push(tDone);
+}
+
+/**
+ * Claim Level 22 reward: hides levelup banner, reveals birthday letter and starts typewriter
+ */
+export function claimLevelReward() {
+  if (typeof document === 'undefined') return;
+  const banner = document.getElementById('levelup-banner');
+  const letterContainer = document.getElementById('birthday-letter-container');
+
+  playSfx('coin');
+
+  if (banner) {
+    banner.style.display = 'none';
+  }
+  if (letterContainer) {
+    letterContainer.style.display = 'flex';
+  }
+
+  runTypewriter();
 }
 
 /**
@@ -950,10 +975,21 @@ export function stopAllEffects() {
     container.textContent = '';
   }
 
-  // Reset Level Up banner, vertical roller & HUD
+  // Reset Level Up banner, vertical roller, reward area & letter container
   const banner = document.getElementById('levelup-banner');
   if (banner) {
+    banner.style.display = '';
     banner.classList.remove('show');
+  }
+
+  const rewardArea = document.getElementById('level-reward-area');
+  if (rewardArea) {
+    rewardArea.style.display = 'none';
+  }
+
+  const letterContainer = document.getElementById('birthday-letter-container');
+  if (letterContainer) {
+    letterContainer.style.display = 'none';
   }
 
   const roller = document.getElementById('level-roller');
@@ -1111,6 +1147,20 @@ export function initApp() {
   if (btnBlow) {
     btnBlow.addEventListener('click', () => {
       blowCandles();
+    });
+  }
+
+  // Level 22 Gift Claim Button
+  const btnClaimGift = document.getElementById('btn-claim-gift');
+  if (btnClaimGift) {
+    btnClaimGift.addEventListener('click', () => {
+      claimLevelReward();
+    });
+    btnClaimGift.addEventListener('keydown', (e) => {
+      if (e.code === 'Enter' || e.code === 'Space') {
+        e.preventDefault();
+        claimLevelReward();
+      }
     });
   }
 

@@ -414,26 +414,26 @@ body {
   height: 12px;
   background: var(--pink-accent);
   box-shadow: 
-    -12px -12px 0 0 var(--pink-accent),
+    -24px -24px 0 0 var(--pink-accent),
     -12px -24px 0 0 var(--pink-accent),
     0 -24px 0 0 var(--pink-accent),
     12px -24px 0 0 var(--pink-accent),
     24px -24px 0 0 var(--pink-accent),
-    36px -24px 0 0 var(--pink-accent),
-    36px -12px 0 0 var(--pink-accent),
-    48px -12px 0 0 var(--pink-accent),
+    -36px -12px 0 0 var(--pink-accent),
     -24px -12px 0 0 var(--pink-accent),
-    -24px 0 0 0 var(--pink-accent),
+    24px -12px 0 0 var(--pink-accent),
+    36px -12px 0 0 var(--pink-accent),
+    -36px 0 0 0 var(--pink-accent),
+    36px 0 0 0 var(--pink-accent),
+    -24px 12px 0 0 var(--pink-accent),
     -12px 12px 0 0 var(--pink-accent),
     0 12px 0 0 var(--pink-accent),
     12px 12px 0 0 var(--pink-accent),
     24px 12px 0 0 var(--pink-accent),
-    36px 12px 0 0 var(--pink-accent),
-    48px 0 0 0 var(--pink-accent),
+    -12px 24px 0 0 var(--pink-accent),
     0 24px 0 0 var(--pink-accent),
     12px 24px 0 0 var(--pink-accent),
-    24px 24px 0 0 var(--pink-accent),
-    12px 36px 0 0 var(--pink-accent);
+    0 36px 0 0 var(--pink-accent);
   margin-bottom: 36px;
   animation: heartBeat 1.2s infinite ease-in-out;
 }
@@ -856,35 +856,35 @@ body {
 }
 
 /* ==========================================================================
-   Table Items Slot: Mini Letter & Star (Quests 3 & 4)
+   Table Items Slot: Mini Wish Letter Placeholder & Pixel Envelope
    ========================================================================== */
 .table-items-slot {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  min-height: 34px;
+  height: 34px;
   margin-top: 6px;
-  min-height: 0;
+  position: relative;
 }
 
 .table-wish-letter {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: #091a38;
-  border: 2px solid var(--gold);
-  box-shadow: 
-    0 0 10px var(--gold-glow),
-    inset 0 0 6px rgba(255, 209, 102, 0.3);
-  padding: 6px 14px;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
   user-select: none;
+  position: relative;
+  z-index: 10;
 }
 
-.table-wish-letter:hover {
-  transform: scale(1.08);
-  box-shadow: 0 0 18px var(--gold);
+.table-wish-letter:hover .mini-envelope-pixel {
+  transform: scale(1.18);
+  filter: drop-shadow(0 0 10px #ffd166);
 }
 
 .table-wish-letter.falling-letter {
@@ -898,49 +898,118 @@ body {
 }
 
 .table-wish-letter.flying-to-window {
-  animation: letterFlyAway 0.9s ease-in forwards;
+  animation: letterFlyAway 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  pointer-events: none;
+  z-index: 50;
 }
 
 @keyframes letterFlyAway {
-  0% { transform: translate(0, 0) scale(1); opacity: 1; }
-  50% { transform: translate(60px, -90px) scale(0.8) rotate(15deg); opacity: 0.8; }
-  100% { transform: translate(120px, -180px) scale(0.2) rotate(35deg); opacity: 0; }
+  0% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+    opacity: 1;
+    filter: drop-shadow(0 0 6px var(--gold));
+  }
+  30% {
+    transform: translate(-8px, -90px) scale(0.85) rotate(-8deg);
+    opacity: 0.95;
+    filter: drop-shadow(0 0 10px var(--gold));
+  }
+  65% {
+    transform: translate(6px, -195px) scale(0.6) rotate(6deg);
+    opacity: 0.9;
+    filter: drop-shadow(0 0 14px var(--gold-glow));
+  }
+  88% {
+    transform: translate(12px, -265px) scale(0.32) rotate(12deg);
+    opacity: 0.75;
+    filter: drop-shadow(0 0 16px #ffd166);
+  }
+  100% {
+    transform: translate(16px, -280px) scale(0.08) rotate(18deg);
+    opacity: 0;
+    filter: drop-shadow(0 0 20px #ffffff);
+  }
 }
 
+/* Pixel Art Mini Letter Envelope */
 .mini-envelope-pixel {
-  width: 22px;
-  height: 16px;
-  background: #fdf5e6;
+  width: 36px;
+  height: 24px;
+  background: #fefcf4;
   border: 2px solid var(--dark-border);
+  box-shadow: 
+    0 2px 0 0 rgba(0, 0, 0, 0.35),
+    0 0 10px rgba(255, 209, 102, 0.65),
+    inset -2px -2px 0 0 #e8dfcf,
+    inset 2px 2px 0 0 #ffffff;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  animation: envelopeWiggle 1.8s infinite ease-in-out;
+  transition: transform 0.15s ease, filter 0.15s ease;
 }
 
 .mini-flap {
   position: absolute;
   top: 0;
-  left: 0;
-  width: 0;
+  left: 2px;
+  right: 2px;
   height: 0;
-  border-left: 9px solid transparent;
-  border-right: 9px solid transparent;
-  border-top: 7px solid #e2d1b6;
+  border-left: 16px solid transparent;
+  border-right: 16px solid transparent;
+  border-top: 12px solid #ebdcc5;
+  filter: drop-shadow(0 1px 0 var(--dark-border));
+}
+
+.mini-creases {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 12px;
+  pointer-events: none;
+  background: 
+    linear-gradient(45deg, transparent 46%, #d8c6aa 48%, #d8c6aa 52%, transparent 54%) left / 16px 12px no-repeat,
+    linear-gradient(-45deg, transparent 46%, #d8c6aa 48%, #d8c6aa 52%, transparent 54%) right / 16px 12px no-repeat;
 }
 
 .mini-seal {
-  font-size: 0.6rem;
+  font-size: 0.68rem;
   color: #ff3366;
-  position: relative;
-  z-index: 2;
+  position: absolute;
+  top: 6px;
+  z-index: 3;
+  line-height: 1;
+  text-shadow: 0 0 4px rgba(255, 51, 102, 0.8);
+  animation: sealPulse 1.2s infinite alternate ease-in-out;
 }
 
-.mini-letter-label {
-  font-size: 0.75rem;
-  color: var(--gold);
-  font-weight: bold;
-  letter-spacing: 0.5px;
+@keyframes envelopeWiggle {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    filter: drop-shadow(0 0 4px rgba(255, 209, 102, 0.5));
+  }
+  20% {
+    transform: translateY(-3px) rotate(-3deg);
+    filter: drop-shadow(0 0 8px rgba(255, 209, 102, 0.9));
+  }
+  40% {
+    transform: translateY(0) rotate(0deg);
+    filter: drop-shadow(0 0 4px rgba(255, 209, 102, 0.5));
+  }
+  60% {
+    transform: translateY(-2px) rotate(3deg);
+    filter: drop-shadow(0 0 8px rgba(255, 209, 102, 0.9));
+  }
+  80% {
+    transform: translateY(0) rotate(0deg);
+  }
+}
+
+@keyframes sealPulse {
+  0% { transform: scale(0.9); opacity: 0.85; }
+  100% { transform: scale(1.15); opacity: 1; text-shadow: 0 0 8px #ff3366; }
 }
 
 /* ==========================================================================
@@ -1587,6 +1656,98 @@ body {
 .glow-gold {
   color: var(--gold);
   text-shadow: 0 0 10px var(--gold-glow);
+}
+
+/* Level 22's Reward Claim Area */
+.level-reward-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 2px dashed rgba(255, 209, 102, 0.4);
+  animation: rewardPopIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes rewardPopIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.reward-title {
+  font-size: 0.95rem;
+  color: var(--gold);
+  letter-spacing: 1px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  text-shadow: 0 0 8px var(--gold-glow);
+}
+
+.reward-gift-letter {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  user-select: none;
+  outline: none;
+  transition: transform 0.15s ease;
+}
+
+.reward-gift-letter:hover,
+.reward-gift-letter:focus {
+  transform: scale(1.22);
+}
+
+.reward-envelope {
+  animation: rewardEnvelopeShake 1.4s infinite ease-in-out !important;
+}
+
+@keyframes rewardEnvelopeShake {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    filter: drop-shadow(0 0 6px var(--gold));
+  }
+  15% {
+    transform: translateY(-4px) rotate(-6deg);
+    filter: drop-shadow(0 0 12px var(--gold-glow));
+  }
+  30% {
+    transform: translateY(0) rotate(6deg);
+    filter: drop-shadow(0 0 16px #ffd166);
+  }
+  45% {
+    transform: translateY(-3px) rotate(-4deg);
+    filter: drop-shadow(0 0 12px var(--gold-glow));
+  }
+  60% {
+    transform: translateY(0) rotate(0deg);
+    filter: drop-shadow(0 0 8px var(--gold));
+  }
+}
+
+.reward-hint {
+  font-size: 0.78rem;
+  color: var(--cyan-light);
+  margin-top: 10px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-shadow: 0 0 6px var(--cyan-glow);
+}
+
+/* Birthday Letter Container */
+.birthday-letter-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: letterFadeIn 0.6s ease forwards;
+}
+
+@keyframes letterFadeIn {
+  0% { opacity: 0; transform: translateY(16px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 .level-up-flash {
