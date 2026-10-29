@@ -22,25 +22,95 @@ export const BIRTHDAY_CONFIG = {
   ]
 };
 
+// Cloudflare Worker Backend URL (hardcoded, user can update later)
+export const BE_URL = 'https://otaome.tranduytoan.workers.dev';
+
+/**
+ * Normalize Backend URL with protocol and without trailing slash
+ */
+export function getBackendUrl() {
+  if (!BE_URL) return '';
+  const trimmed = BE_URL.trim();
+  if (!trimmed) return '';
+  const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  return withProtocol.replace(/\/+$/, '');
+}
+
+export const AUTH_CODES = {
+  SUCCESS: 'AUTH_SUCCESS_2910',
+  FAILED: 'AUTH_FAILED_INVALID'
+};
+
 // Player authentication constants
 export const AUTH_CREDENTIALS = {
   username: 'thuthuy',
   password: 'xinhdep',
-  sessionDurationMs: 60 * 60 * 1000 // 1 hour in ms
+  sessionDurationMs: 60 * 60 * 1000 // 1 hour in ms (legacy fallback)
 };
 
 export const AUTH_STORAGE_KEY = 'hpbd_player_auth';
 
 /**
- * Check if active session exists and is within 1-hour window
+ * Decode payload from JWT token
+ */
+export function parseJwtPayload(token) {
+  if (!token || typeof token !== 'string') return null;
+  try {
+    const parts = token.split('.');
+    if (parts.length < 2) return null;
+    const base64Url = parts[1];
+    let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    while (base64.length % 4) {
+      base64 += '=';
+    }
+    const jsonStr = typeof atob !== 'undefined'
+      ? decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''))
+      : Buffer.from(base64, 'base64').toString('utf8');
+    return JSON.parse(jsonStr);
+  } catch (_) {
+    return null;
+  }
+}
+
+/**
+ * Get active session object from localStorage
+ */
+export function getAuthSession() {
+  if (typeof localStorage === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (_) {
+    return null;
+  }
+}
+
+/**
+ * Check if active session exists and is within validity window (30-min JWT or 1-hour legacy)
  */
 export function checkAuthSession() {
   if (typeof localStorage === 'undefined') return true;
   try {
-    const raw = localStorage.getItem(AUTH_STORAGE_KEY);
-    if (!raw) return false;
-    const session = JSON.parse(raw);
-    if (!session || !session.timestamp) return false;
+    const session = getAuthSession();
+    if (!session) return false;
+
+    // Check JWT expiration if token is present
+    if (session.token) {
+      const payload = parseJwtPayload(session.token);
+      if (payload && payload.exp) {
+        const nowSec = Math.floor(Date.now() / 1000);
+        if (nowSec >= payload.exp) {
+          // Token expired: clean up
+          localStorage.removeItem(AUTH_STORAGE_KEY);
+          return false;
+        }
+        return true;
+      }
+    }
+
+    // Fallback: check timestamp
+    if (!session.timestamp) return false;
     const now = Date.now();
     const elapsed = now - session.timestamp;
     if (elapsed >= 0 && elapsed < AUTH_CREDENTIALS.sessionDurationMs) {
@@ -55,7 +125,67 @@ export function checkAuthSession() {
 }
 
 /**
- * Attempt player login
+ * Gather safe and legal device information for wish logging
+ */
+export function getDeviceInfo() {
+  if (typeof window === 'undefined') {
+    return {
+      userAgent: 'Node.js',
+      screen: '1920x1080',
+      timeZone: 'UTC',
+      language: 'vi-VN'
+    };
+  }
+
+  return {
+    userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
+    language: typeof navigator !== 'undefined' ? navigator.language : '',
+    screen: typeof window.screen !== 'undefined' ? `${window.screen.width}x${window.screen.height}` : '',
+    viewport: `${window.innerWidth}x${window.innerHeight}`,
+    devicePixelRatio: window.devicePixelRatio || 1,
+    timeZone: typeof Intl !== 'undefined' && Intl.DateTimeFormat ? Intl.DateTimeFormat().resolvedOptions().timeZone : '',
+    platform: typeof navigator !== 'undefined' ? (navigator.userAgentData?.platform || navigator.platform || '') : ''
+  };
+}
+
+/**
+ * Attempt player login via Cloudflare Worker backend with fallback
+ */
+export async function loginBackend(username, password) {
+  const baseUrl = getBackendUrl();
+  if (baseUrl && !baseUrl.includes('your-worker')) {
+    try {
+      const res = await fetch(`${baseUrl}/api/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+      if (res.ok && data.code === AUTH_CODES.SUCCESS) {
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
+            username: data.username || username,
+            token: data.token,
+            timestamp: Date.now()
+          }));
+        }
+        return { success: true, token: data.token };
+      }
+      return {
+        success: false,
+        error: data.error || 'Sai Username hoặc Password rồi! Thử lại nhé'
+      };
+    } catch (_) {
+      // Backend offline or network error: fallback to local validation
+      return login(username, password);
+    }
+  }
+
+  return login(username, password);
+}
+
+/**
+ * Attempt player login (synchronous local fallback)
  */
 export function login(username, password) {
   const userValid = username && username.trim().toLowerCase() === AUTH_CREDENTIALS.username.toLowerCase();
@@ -75,8 +205,36 @@ export function login(username, password) {
 
   return {
     success: false,
-    error: 'Sai Username hoặc Password rồi! Thử lại nhé 🎮'
+    error: 'Sai Username hoặc Password rồi! Thử lại nhé'
   };
+}
+
+/**
+ * Log user wish and device info to Cloudflare Worker backend
+ */
+export async function logWishToBackend(wishText) {
+  const baseUrl = getBackendUrl();
+  if (!baseUrl) return { success: false, reason: 'no_backend_url' };
+  const session = getAuthSession();
+  const token = session?.token;
+  if (!token) return { success: false, reason: 'no_token' };
+
+  try {
+    const res = await fetch(`${baseUrl}/api/log-wish`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        wish: wishText,
+        device_info: getDeviceInfo()
+      })
+    });
+    return await res.json();
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
 }
 
 let currentScreen = 'screen-start';
@@ -551,6 +709,9 @@ export function submitWish(customWish, options = {}) {
       }, 900);
     }
   }
+
+  // Log wish and device info to Cloudflare Worker backend
+  logWishToBackend(userWishText).catch(() => {});
 
   // Toast and Quest mutual exclusivity:
   // Show toast "Ước nguyện đã được gửi gắm vào các vì sao!"
@@ -1129,11 +1290,11 @@ export function initApp() {
   const btnLogout = document.getElementById('btn-logout');
 
   if (loginForm) {
-    loginForm.addEventListener('submit', (e) => {
+    loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const user = inputUsername ? inputUsername.value : '';
       const pass = inputPassword ? inputPassword.value : '';
-      const res = login(user, pass);
+      const res = await loginBackend(user, pass);
       if (res.success) {
         initAudio();
         playSfx('coin');
@@ -1144,7 +1305,7 @@ export function initApp() {
         initAudio();
         playSfx('error');
         if (loginError) {
-          loginError.textContent = res.error;
+          loginError.textContent = res.error || 'Sai Username hoặc Password rồi! Thử lại nhé';
           loginError.classList.add('error-shake');
           setTimeout(() => loginError.classList.remove('error-shake'), 400);
         }

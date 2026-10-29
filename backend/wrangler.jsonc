@@ -1,0 +1,23 @@
+/**
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "otaome",
+	"main": "src/index.js",
+	"compatibility_date": "2026-10-29",
+	"observability": {
+		"enabled": true,
+		"traces": {
+			"enabled": true
+		}
+	},
+	"upload_source_maps": true,
+	"kv_namespaces": [
+		{
+			"binding": "HPBD_THUY",
+			"id": "ce0b9829683d42c9bdf81308e20f37fc"
+		}
+	]
+}

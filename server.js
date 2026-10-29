@@ -35,6 +35,6 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`🎮 Pixel Art Birthday Page is running at: http://localhost:${PORT}`);
-  console.log(`🎂 Happy Birthday Thu Thùy! (Press Ctrl+C to stop)`);
+  console.log(`Pixel Art Birthday Page is running at: http://localhost:${PORT}`);
+  console.log(`Press Ctrl+C to stop`);
 });
